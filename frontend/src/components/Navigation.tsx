@@ -1,26 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDownIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Navigation: React.FC = () => {
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [isVisitOpen, setIsVisitOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-
-  const productCategories = [
-    { name: 'Plywood', path: '/products/plywood' },
-    { name: 'Prefinished Melamine', path: '/products/melamine' },
-    { name: 'Prefinished Melamine Plywood', path: '/products/melamine-plywood' },
-    { name: 'Wood Veneer', path: '/products/veneer' },
-    { name: 'Raw Wood Logs', path: '/products/logs' },
-  ];
-
-  const visitOptions = [
-    { name: 'Factory Pictures & Videos', path: '/visit' },
-    { name: 'Schedule Virtual Tour', path: '/visit/virtual-tour' },
-  ];
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -64,81 +49,27 @@ const Navigation: React.FC = () => {
               About Us
             </Link>
 
-            <div
-              className="relative"
-              onMouseEnter={() => setIsProductsOpen(true)}
-              onMouseLeave={() => setIsProductsOpen(false)}
+            <Link
+              to="/products"
+              className={`px-5 py-3 rounded-lg transition-all duration-300 text-lg font-bold ${
+                location.pathname.startsWith('/products')
+                  ? 'bg-forest-green text-white'
+                  : 'text-forest-green hover:bg-light-green hover:text-forest-green'
+              }`}
             >
-              <button
-                className={`flex items-center px-5 py-3 rounded-lg transition-all duration-300 text-lg font-bold ${
-                  location.pathname.startsWith('/products')
-                    ? 'bg-forest-green text-white'
-                    : 'text-forest-green hover:bg-light-green hover:text-forest-green'
-                }`}
-              >
-                Our Products
-                <ChevronDownIcon className="w-4 h-4 ml-2" />
-              </button>
+              Our Products
+            </Link>
 
-              <AnimatePresence>
-                {isProductsOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl overflow-hidden"
-                  >
-                    {productCategories.map((category) => (
-                      <Link
-                        key={category.path}
-                        to={category.path}
-                        className="block px-4 py-3 text-forest-green hover:bg-light-green hover:text-forest-green transition-colors duration-200"
-                      >
-                        {category.name}
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div
-              className="relative"
-              onMouseEnter={() => setIsVisitOpen(true)}
-              onMouseLeave={() => setIsVisitOpen(false)}
+            <Link
+              to="/visit"
+              className={`px-5 py-3 rounded-lg transition-all duration-300 text-lg font-bold ${
+                location.pathname.startsWith('/visit')
+                  ? 'bg-forest-green text-white'
+                  : 'text-forest-green hover:bg-light-green hover:text-forest-green'
+              }`}
             >
-              <button
-                className={`flex items-center px-5 py-3 rounded-lg transition-all duration-300 text-lg font-bold ${
-                  location.pathname.startsWith('/visit')
-                    ? 'bg-forest-green text-white'
-                    : 'text-forest-green hover:bg-light-green hover:text-forest-green'
-                }`}
-              >
-                Visit Our Company
-                <ChevronDownIcon className="w-4 h-4 ml-2" />
-              </button>
-
-              <AnimatePresence>
-                {isVisitOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl overflow-hidden"
-                  >
-                    {visitOptions.map((option) => (
-                      <Link
-                        key={option.path}
-                        to={option.path}
-                        className="block px-4 py-3 text-forest-green hover:bg-light-green hover:text-forest-green transition-colors duration-200"
-                      >
-                        {option.name}
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+              Visit Our Company
+            </Link>
 
             <Link
               to="/contact"
@@ -189,32 +120,20 @@ const Navigation: React.FC = () => {
                 >
                   About Us
                 </Link>
-                <div className="px-4 py-2">
-                  <div className="text-lg font-bold text-forest-green mb-2">Our Products</div>
-                  {productCategories.map((category) => (
-                    <Link
-                      key={category.path}
-                      to={category.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block pl-4 py-1 text-forest-green hover:text-sage-green"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-                <div className="px-4 py-2">
-                  <div className="text-lg font-bold text-forest-green mb-2">Visit Our Company</div>
-                  {visitOptions.map((option) => (
-                    <Link
-                      key={option.path}
-                      to={option.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block pl-4 py-1 text-forest-green hover:text-sage-green"
-                    >
-                      {option.name}
-                    </Link>
-                  ))}
-                </div>
+                <Link
+                  to="/products"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
+                >
+                  Our Products
+                </Link>
+                <Link
+                  to="/visit"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
+                >
+                  Visit Our Company
+                </Link>
                 <Link
                   to="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}

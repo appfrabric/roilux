@@ -301,9 +301,9 @@ def get_company_info():
             "PEFC Certified"
         ],
         "contact": {
-            "email": "info@tropicalwood.com",
-            "phone": "+237 XXX XXX XXX",
-            "address": "Industrial Zone, Douala, Cameroon"
+            "email": "roilux.woods@gmail.com",
+            "phone": "+237-681-21-1111",
+            "address": "Abonbang, Cameroon"
         }
     }
 
