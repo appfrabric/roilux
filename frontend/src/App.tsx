@@ -1,0 +1,37 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import Navigation from './components/Navigation';
+import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
+import Products from './pages/Products';
+import ProductCategory from './pages/ProductCategory';
+import VisitCompany from './pages/VisitCompany';
+import VirtualTour from './pages/VirtualTour';
+
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-gradient-to-br from-cream via-sand to-cream">
+        <Navigation />
+        <motion.main
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="container mx-auto px-4 py-8"
+        >
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:category" element={<ProductCategory />} />
+            <Route path="/visit" element={<VisitCompany />} />
+            <Route path="/visit/virtual-tour" element={<VirtualTour />} />
+          </Routes>
+        </motion.main>
+      </div>
+    </Router>
+  );
+}
+
+export default App;

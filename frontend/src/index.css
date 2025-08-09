@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #FFF8DC 0%, #F4E4C1 50%, #FFF8DC 100%);
+  min-height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+@layer utilities {
+  .wood-texture {
+    background-image: linear-gradient(90deg, 
+      rgba(188, 154, 106, 0.1) 0%, 
+      rgba(139, 115, 85, 0.15) 50%, 
+      rgba(188, 154, 106, 0.1) 100%);
+  }
+}
