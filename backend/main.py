@@ -1,13 +1,18 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional, Dict
+from sqlalchemy.orm import Session
 import os
 from datetime import datetime
 import json
 import shutil
 from pathlib import Path
+import httpx
+from database import get_db, create_tables, User, ContactMessage, VirtualTour, Order
+from translations import get_translation, get_user_language
+import uuid
 
 app = FastAPI(title="Tropical Wood API", version="1.0.0")
 
@@ -20,6 +25,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize database
+@app.on_event("startup")
+async def startup_event():
+    create_tables()
+
 # Create directories for storing uploads
 UPLOAD_DIR = Path("uploads")
 IMAGES_DIR = UPLOAD_DIR / "images"
@@ -27,10 +37,6 @@ VIDEOS_DIR = UPLOAD_DIR / "videos"
 
 for directory in [IMAGES_DIR, VIDEOS_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
-
-# Sample data storage (in production, use a database)
-VIRTUAL_TOURS = []
-CONTACT_MESSAGES = []
 
 # Pydantic models
 class VirtualTourRequest(BaseModel):
@@ -41,12 +47,33 @@ class VirtualTourRequest(BaseModel):
     preferredDate: str
     preferredTime: str
     message: Optional[str] = None
+    language: Optional[str] = "en"
 
-class ContactMessage(BaseModel):
+class ContactMessageRequest(BaseModel):
     name: str
     email: EmailStr
+    company: Optional[str] = None
+    phone: Optional[str] = None
     subject: str
     message: str
+    language: Optional[str] = "en"
+
+class UserRegistration(BaseModel):
+    name: str
+    email: EmailStr
+    company: Optional[str] = None
+    phone: Optional[str] = None
+    language: Optional[str] = "en"
+    country: Optional[str] = None
+
+class OrderRequest(BaseModel):
+    customer_name: str
+    customer_email: EmailStr
+    customer_company: Optional[str] = None
+    customer_phone: Optional[str] = None
+    products: List[Dict]
+    notes: Optional[str] = None
+    language: Optional[str] = "en"
 
 class Product(BaseModel):
     id: str
@@ -63,6 +90,40 @@ def read_root():
         "message": "Welcome to Tropical Wood API",
         "status": "active",
         "version": "1.0.0"
+    }
+
+# Language detection endpoint
+@app.get("/api/detect-language")
+async def detect_language(request: Request):
+    """Detect user language based on location and headers"""
+    
+    # Try to get user's country from IP (simplified)
+    client_ip = request.client.host
+    country_code = None
+    
+    # In production, you would use a real GeoIP service
+    # For now, we'll use the Accept-Language header
+    
+    language = get_user_language(request, country_code)
+    
+    return {
+        "detected_language": language,
+        "available_languages": ["en", "fr"],
+        "country_code": country_code
+    }
+
+# Get translations endpoint
+@app.get("/api/translations/{language}")
+async def get_translations(language: str):
+    """Get all translations for a specific language"""
+    from translations import TRANSLATIONS
+    
+    if language not in TRANSLATIONS:
+        raise HTTPException(status_code=404, detail="Language not supported")
+    
+    return {
+        "language": language,
+        "translations": TRANSLATIONS[language]
     }
 
 # Products endpoints
@@ -175,42 +236,194 @@ def get_products_by_category(category: str):
 
 # Virtual tour booking
 @app.post("/api/virtual-tour")
-def book_virtual_tour(tour_request: VirtualTourRequest):
+def book_virtual_tour(tour_request: VirtualTourRequest, db: Session = Depends(get_db)):
     """Book a virtual tour"""
-    tour_data = tour_request.dict()
-    tour_data["id"] = len(VIRTUAL_TOURS) + 1
-    tour_data["created_at"] = datetime.now().isoformat()
-    tour_data["status"] = "pending"
     
-    VIRTUAL_TOURS.append(tour_data)
+    # Check if user exists or create new user
+    user = db.query(User).filter(User.email == tour_request.email).first()
+    if not user:
+        user = User(
+            name=tour_request.name,
+            email=tour_request.email,
+            company=tour_request.company,
+            phone=tour_request.phone,
+            language=tour_request.language
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    # Create virtual tour request
+    tour = VirtualTour(
+        user_id=user.id,
+        name=tour_request.name,
+        email=tour_request.email,
+        company=tour_request.company,
+        phone=tour_request.phone,
+        preferred_date=tour_request.preferredDate,
+        preferred_time=tour_request.preferredTime,
+        message=tour_request.message,
+        language=tour_request.language,
+        status="pending"
+    )
+    
+    db.add(tour)
+    db.commit()
+    db.refresh(tour)
     
     return {
         "success": True,
-        "message": "Virtual tour request submitted successfully",
-        "tour_id": tour_data["id"]
+        "message": get_translation("tour_booked", tour_request.language),
+        "tour_id": tour.id
     }
 
 @app.get("/api/virtual-tours")
-def get_virtual_tours():
+def get_virtual_tours(db: Session = Depends(get_db)):
     """Get all virtual tour requests (admin endpoint)"""
-    return {"tours": VIRTUAL_TOURS, "total": len(VIRTUAL_TOURS)}
+    tours = db.query(VirtualTour).all()
+    return {"tours": tours, "total": len(tours)}
 
 # Contact form
 @app.post("/api/contact")
-def submit_contact(message: ContactMessage):
+def submit_contact(message_request: ContactMessageRequest, db: Session = Depends(get_db)):
     """Submit a contact message"""
-    contact_data = message.dict()
-    contact_data["id"] = len(CONTACT_MESSAGES) + 1
-    contact_data["created_at"] = datetime.now().isoformat()
-    contact_data["status"] = "unread"
     
-    CONTACT_MESSAGES.append(contact_data)
+    # Check if user exists or create new user
+    user = db.query(User).filter(User.email == message_request.email).first()
+    if not user:
+        user = User(
+            name=message_request.name,
+            email=message_request.email,
+            company=message_request.company,
+            phone=message_request.phone,
+            language=message_request.language
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    # Create contact message
+    contact_message = ContactMessage(
+        user_id=user.id,
+        name=message_request.name,
+        email=message_request.email,
+        company=message_request.company,
+        phone=message_request.phone,
+        subject=message_request.subject,
+        message=message_request.message,
+        language=message_request.language,
+        status="unread"
+    )
+    
+    db.add(contact_message)
+    db.commit()
+    db.refresh(contact_message)
     
     return {
         "success": True,
-        "message": "Message sent successfully",
-        "message_id": contact_data["id"]
+        "message": get_translation("message_sent", message_request.language),
+        "message_id": contact_message.id
     }
+
+# User registration endpoint
+@app.post("/api/users/register")
+def register_user(user_data: UserRegistration, db: Session = Depends(get_db)):
+    """Register a new user"""
+    
+    # Check if user already exists
+    existing_user = db.query(User).filter(User.email == user_data.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+    
+    # Create new user
+    user = User(
+        name=user_data.name,
+        email=user_data.email,
+        company=user_data.company,
+        phone=user_data.phone,
+        language=user_data.language,
+        country=user_data.country
+    )
+    
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+    return {
+        "success": True,
+        "message": "User registered successfully",
+        "user_id": user.id
+    }
+
+# Order submission endpoint
+@app.post("/api/orders")
+def submit_order(order_request: OrderRequest, db: Session = Depends(get_db)):
+    """Submit a product order/inquiry"""
+    
+    # Check if user exists or create new user
+    user = db.query(User).filter(User.email == order_request.customer_email).first()
+    if not user:
+        user = User(
+            name=order_request.customer_name,
+            email=order_request.customer_email,
+            company=order_request.customer_company,
+            phone=order_request.customer_phone,
+            language=order_request.language
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    # Generate order number
+    order_number = f"TW{datetime.now().strftime('%Y%m%d')}{str(uuid.uuid4())[:8].upper()}"
+    
+    # Create order
+    order = Order(
+        user_id=user.id,
+        order_number=order_number,
+        customer_name=order_request.customer_name,
+        customer_email=order_request.customer_email,
+        customer_company=order_request.customer_company,
+        customer_phone=order_request.customer_phone,
+        products=json.dumps(order_request.products),
+        language=order_request.language,
+        status="inquiry",
+        notes=order_request.notes
+    )
+    
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    
+    return {
+        "success": True,
+        "message": "Order inquiry submitted successfully",
+        "order_id": order.id,
+        "order_number": order.order_number
+    }
+
+# Get orders (admin endpoint)
+@app.get("/api/orders")
+def get_orders(db: Session = Depends(get_db)):
+    """Get all orders (admin endpoint)"""
+    orders = db.query(Order).all()
+    
+    # Convert JSON strings back to objects for display
+    for order in orders:
+        if order.products:
+            try:
+                order.products = json.loads(order.products)
+            except:
+                pass
+    
+    return {"orders": orders, "total": len(orders)}
+
+# Get contact messages (admin endpoint)
+@app.get("/api/contact-messages")
+def get_contact_messages(db: Session = Depends(get_db)):
+    """Get all contact messages (admin endpoint)"""
+    messages = db.query(ContactMessage).all()
+    return {"messages": messages, "total": len(messages)}
 
 # Image upload endpoint
 @app.post("/api/upload/image")

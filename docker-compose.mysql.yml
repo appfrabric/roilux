@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: tropical-wood-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: tropical_wood_root
+      MYSQL_DATABASE: tropical_wood
+      MYSQL_USER: tropical_wood_user
+      MYSQL_PASSWORD: tropical_wood_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - roilux-network
+    restart: unless-stopped
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: roilux-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    environment:
+      - DATABASE_URL=mysql+pymysql://tropical_wood_user:tropical_wood_pass@mysql:3306/tropical_wood
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - roilux-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: roilux-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - roilux-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  roilux-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  uploads:
+    driver: local

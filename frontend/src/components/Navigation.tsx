@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -18,9 +21,9 @@ const Navigation: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               className="text-2xl font-bold text-forest-green"
             >
-              Tropical Wood
+              {t('company_name')}
               <span className="text-sm font-normal text-forest-green opacity-70 ml-2">
-                a division of Roilux
+                {t('company_subtitle')}
               </span>
             </motion.div>
           </Link>
@@ -35,7 +38,7 @@ const Navigation: React.FC = () => {
                   : 'text-forest-green hover:bg-light-green hover:text-forest-green'
               }`}
             >
-              Home
+              {t('nav_home')}
             </Link>
 
             <Link
@@ -46,7 +49,7 @@ const Navigation: React.FC = () => {
                   : 'text-forest-green hover:bg-light-green hover:text-forest-green'
               }`}
             >
-              About Us
+              {t('nav_about')}
             </Link>
 
             <Link
@@ -57,7 +60,7 @@ const Navigation: React.FC = () => {
                   : 'text-forest-green hover:bg-light-green hover:text-forest-green'
               }`}
             >
-              Our Products
+              {t('nav_products')}
             </Link>
 
             <Link
@@ -68,7 +71,7 @@ const Navigation: React.FC = () => {
                   : 'text-forest-green hover:bg-light-green hover:text-forest-green'
               }`}
             >
-              Visit Our Company
+              {t('nav_visit')}
             </Link>
 
             <Link
@@ -79,8 +82,10 @@ const Navigation: React.FC = () => {
                   : 'text-forest-green hover:bg-light-green hover:text-forest-green'
               }`}
             >
-              Contact Us
+              {t('nav_contact')}
             </Link>
+            
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile Menu Button */}
@@ -111,36 +116,39 @@ const Navigation: React.FC = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
                 >
-                  Home
+                  {t('nav_home')}
                 </Link>
                 <Link
                   to="/about"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
                 >
-                  About Us
+                  {t('nav_about')}
                 </Link>
                 <Link
                   to="/products"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
                 >
-                  Our Products
+                  {t('nav_products')}
                 </Link>
                 <Link
                   to="/visit"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
                 >
-                  Visit Our Company
+                  {t('nav_visit')}
                 </Link>
                 <Link
                   to="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
                 >
-                  Contact Us
+                  {t('nav_contact')}
                 </Link>
+                <div className="px-5 py-3">
+                  <LanguageSwitcher />
+                </div>
               </div>
             </motion.div>
           )}
