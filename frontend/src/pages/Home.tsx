@@ -2,27 +2,30 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
+  
   const features = [
     {
-      title: 'Premium Quality',
-      description: 'Finest wood products from Cameroon forests',
+      title: t('premium_quality'),
+      description: t('premium_quality_desc'),
       icon: '🌲',
     },
     {
-      title: 'Custom Solutions',
-      description: 'Tailored to your specific requirements',
+      title: t('custom_solutions'),
+      description: t('custom_solutions_desc'),
       icon: '📐',
     },
     {
-      title: 'Fast Production',
-      description: '50+ containers monthly capacity',
+      title: t('fast_production'),
+      description: t('fast_production_desc'),
       icon: '🚚',
     },
     {
-      title: 'Global Shipping',
-      description: 'Worldwide delivery available',
+      title: t('global_shipping'),
+      description: t('global_shipping_desc'),
       icon: '🌍',
     },
   ];
@@ -39,31 +42,30 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 wood-texture opacity-20"></div>
         <div className="relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold mb-2 animate-fade-in">
-            Welcome to
+            {t('welcome_to')}
           </h1>
           <h2 className="text-6xl md:text-7xl font-bold mb-2 animate-fade-in">
-            Tropical Wood
+            {t('company_name')}
           </h2>
           <p className="text-2xl mb-6 opacity-90 font-medium">
-            A division of Roilux
+            {t('company_subtitle')}
           </p>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl">
-            Your premier source for high-quality wood products from Cameroon. 
-            From premium plywood to custom veneers, we deliver excellence worldwide.
+            {t('hero_description')}
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
               to="/products"
               className="inline-flex items-center px-6 py-3 bg-forest-green text-white rounded-lg font-semibold hover:bg-leaf-green transition-colors duration-300"
             >
-              Explore Products
+              {t('explore_products')}
               <ArrowRightIcon className="w-5 h-5 ml-2" />
             </Link>
             <Link
               to="/visit/virtual-tour"
               className="inline-flex items-center px-6 py-3 bg-transparent border-2 border-forest-green text-forest-green rounded-lg font-semibold hover:bg-forest-green hover:text-white transition-all duration-300"
             >
-              Schedule Virtual Tour
+              {t('schedule_tour')}
             </Link>
           </div>
         </div>
@@ -96,15 +98,15 @@ const Home: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           className="text-3xl font-bold text-forest-green mb-8"
         >
-          Our Product Categories
+          {t('product_categories')}
         </motion.h2>
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            { name: 'Plywood', emoji: '🪵' },
-            { name: 'Melamine', emoji: '✨' },
-            { name: 'Melamine Plywood', emoji: '🎨' },
-            { name: 'Wood Veneer', emoji: '🌳' },
-            { name: 'Raw Logs', emoji: '🪓' },
+            { name: t('plywood'), emoji: '🪵' },
+            { name: t('melamine'), emoji: '✨' },
+            { name: t('melamine_plywood'), emoji: '🎨' },
+            { name: t('veneer'), emoji: '🌳' },
+            { name: t('logs'), emoji: '🪓' },
           ].map((category, index) => (
             <motion.div
               key={category.name}
@@ -128,23 +130,23 @@ const Home: React.FC = () => {
         transition={{ duration: 0.8, delay: 0.5 }}
         className="bg-gradient-to-b from-leaf-green to-white rounded-2xl p-8 text-white text-center"
       >
-        <h2 className="text-3xl font-bold mb-4">Ready to Order?</h2>
+        <h2 className="text-3xl font-bold mb-4">{t('ready_to_order')}</h2>
         <p className="text-xl mb-6">
-          We can ship samples and guarantee quality production
+          {t('sample_guarantee')}
         </p>
         <div className="flex flex-wrap justify-center gap-4 mb-6">
           <Link
             to="/products"
             className="inline-flex items-center px-8 py-4 bg-white text-forest-green rounded-lg font-bold hover:bg-cream transition-colors duration-300"
           >
-            View Our Products
+            {t('view_products')}
             <ArrowRightIcon className="w-5 h-5 ml-2" />
           </Link>
           <Link
             to="/contact"
             className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-bold hover:bg-white hover:text-forest-green transition-all duration-300"
           >
-            Contact Us
+            {t('nav_contact')}
           </Link>
         </div>
       </motion.section>
@@ -158,20 +160,20 @@ const Home: React.FC = () => {
       >
         <div className="grid md:grid-cols-3 gap-6 text-center">
           <div>
-            <h3 className="text-lg font-bold mb-2">📞 Call Us</h3>
+            <h3 className="text-lg font-bold mb-2">{t('call_us')}</h3>
             <a href="tel:+2376812111" className="hover:text-sage-green transition-colors">
               +237-681-21-1111
             </a>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-2">📧 Email Us</h3>
+            <h3 className="text-lg font-bold mb-2">{t('email_us')}</h3>
             <a href="mailto:roilux.woods@gmail.com" className="hover:text-sage-green transition-colors">
               roilux.woods@gmail.com
             </a>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-2">📍 Visit Us</h3>
-            <p>Abonbang, Cameroon</p>
+            <h3 className="text-lg font-bold mb-2">{t('visit_us')}</h3>
+            <p>{t('abonbang')}</p>
           </div>
         </div>
       </motion.section>

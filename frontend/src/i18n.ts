@@ -58,7 +58,7 @@ const resources = {
       // Forms
       full_name: "Full Name",
       email_address: "Email Address",
-      company_name: "Company Name",
+      company_field: "Company Name",
       phone_number: "Phone Number",
       subject: "Subject",
       message: "Message",
@@ -153,7 +153,7 @@ const resources = {
       // Forms
       full_name: "Nom Complet",
       email_address: "Adresse Email",
-      company_name: "Nom de l'Entreprise",
+      company_field: "Nom de l'Entreprise",
       phone_number: "Numéro de Téléphone",
       subject: "Sujet",
       message: "Message",

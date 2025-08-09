@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 const LanguageSwitcher: React.FC = () => {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
