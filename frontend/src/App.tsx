@@ -8,6 +8,7 @@ import Products from './pages/Products';
 import ProductCategory from './pages/ProductCategory';
 import VisitCompany from './pages/VisitCompany';
 import VirtualTour from './pages/VirtualTour';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/products/:category" element={<ProductCategory />} />
             <Route path="/visit" element={<VisitCompany />} />
             <Route path="/visit/virtual-tour" element={<VirtualTour />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </motion.main>
       </div>

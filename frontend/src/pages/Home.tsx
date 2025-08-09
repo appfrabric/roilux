@@ -132,13 +132,48 @@ const Home: React.FC = () => {
         <p className="text-xl mb-6">
           We can ship samples and guarantee quality production
         </p>
-        <Link
-          to="/products"
-          className="inline-flex items-center px-8 py-4 bg-white text-forest-green rounded-lg font-bold hover:bg-cream transition-colors duration-300"
-        >
-          View Our Products
-          <ArrowRightIcon className="w-5 h-5 ml-2" />
-        </Link>
+        <div className="flex flex-wrap justify-center gap-4 mb-6">
+          <Link
+            to="/products"
+            className="inline-flex items-center px-8 py-4 bg-white text-forest-green rounded-lg font-bold hover:bg-cream transition-colors duration-300"
+          >
+            View Our Products
+            <ArrowRightIcon className="w-5 h-5 ml-2" />
+          </Link>
+          <Link
+            to="/contact"
+            className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-bold hover:bg-white hover:text-forest-green transition-all duration-300"
+          >
+            Contact Us
+          </Link>
+        </div>
+      </motion.section>
+
+      {/* Contact Info Footer */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.7 }}
+        className="bg-gradient-to-r from-wood-light to-wood-medium rounded-2xl p-8 text-white"
+      >
+        <div className="grid md:grid-cols-3 gap-6 text-center">
+          <div>
+            <h3 className="text-lg font-bold mb-2">📞 Call Us</h3>
+            <a href="tel:+2376812111" className="hover:text-sage-green transition-colors">
+              +237-681-21-1111
+            </a>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-2">📧 Email Us</h3>
+            <a href="mailto:roilux.woods@gmail.com" className="hover:text-sage-green transition-colors">
+              roilux.woods@gmail.com
+            </a>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-2">📍 Visit Us</h3>
+            <p>Abonbang, Cameroon</p>
+          </div>
+        </div>
       </motion.section>
     </div>
   );

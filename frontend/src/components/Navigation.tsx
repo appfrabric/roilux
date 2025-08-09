@@ -25,7 +25,7 @@ const Navigation: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="bg-gradient-to-b from-sage-green to-white shadow-lg sticky top-0 z-50 wood-texture">
+    <nav className="bg-gradient-to-b from-wood-light via-wood-dark to-leaf-green shadow-lg sticky top-0 z-50 wood-texture">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
@@ -139,6 +139,17 @@ const Navigation: React.FC = () => {
                 )}
               </AnimatePresence>
             </div>
+
+            <Link
+              to="/contact"
+              className={`px-5 py-3 rounded-lg transition-all duration-300 text-lg font-bold ${
+                isActive('/contact')
+                  ? 'bg-forest-green text-white'
+                  : 'text-forest-green hover:bg-light-green hover:text-forest-green'
+              }`}
+            >
+              Contact Us
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -204,6 +215,13 @@ const Navigation: React.FC = () => {
                     </Link>
                   ))}
                 </div>
+                <Link
+                  to="/contact"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-5 py-3 text-lg font-bold text-forest-green hover:bg-light-green hover:text-forest-green rounded-lg"
+                >
+                  Contact Us
+                </Link>
               </div>
             </motion.div>
           )}

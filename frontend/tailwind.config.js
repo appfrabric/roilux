@@ -6,8 +6,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'wood-light': '#DEB887',
-        'wood-medium': '#BC9A6A',
+        'wood-light': '#C8A882',
+        'wood-medium': '#A68B5B',
         'wood-dark': '#8B7355',
         'leaf-green': '#90C695',
         'forest-green': '#2D5233',
