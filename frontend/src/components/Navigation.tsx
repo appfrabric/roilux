@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -100,9 +100,10 @@ const Navigation: React.FC = () => {
             
             <Link
               to="/admin"
-              className="px-3 py-2 text-xs bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              className="flex items-center space-x-2 px-3 py-2 text-xs bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
             >
-              Admin
+              <ArrowRightOnRectangleIcon className="h-4 w-4" />
+              <span>{t('login') || 'Login'}</span>
             </Link>
           </div>
 
@@ -167,6 +168,14 @@ const Navigation: React.FC = () => {
                 <div className="px-5 py-3">
                   <LanguageSwitcher />
                 </div>
+                <Link
+                  to="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center space-x-2 mx-5 px-3 py-2 text-xs bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                >
+                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                  <span>{t('login') || 'Login'}</span>
+                </Link>
               </div>
             </motion.div>
           )}

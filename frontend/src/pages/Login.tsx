@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 interface LoginProps {
-  onLogin: (credentials: { username: string; password: string }) => void;
+  onLogin: (credentials: { username: string; password: string }) => boolean;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -18,11 +19,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simple admin credentials (in production, this would be handled by backend)
-    if (username === 'admin' && password === 'roilux2024') {
-      onLogin({ username, password });
-    } else {
-      alert('Invalid credentials. Use username: admin, password: roilux2024');
+    const success = onLogin({ username, password });
+    if (!success) {
+      alert(t('invalid_credentials') || 'Invalid username or password');
     }
     
     setIsLoading(false);
@@ -108,9 +107,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </motion.button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>{t('demo_credentials') || 'Demo credentials:'}</p>
-            <p className="font-mono text-xs mt-1">Username: admin | Password: roilux2024</p>
+          <div className="mt-6 text-center">
+            <Link
+              to="/reset-password"
+              className="text-sage-green hover:text-wood-light transition-colors text-sm font-medium"
+            >
+              {t('forgot_password') || 'Forgot Password?'}
+            </Link>
           </div>
         </div>
       </motion.div>
