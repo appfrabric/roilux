@@ -8,9 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database configuration
+# Ensure data directory exists
+os.makedirs("data", exist_ok=True)
+
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "sqlite:///./tropical_wood.db"
+    "sqlite:///./data/tropical_wood.db"
 )
 
 engine = create_engine(DATABASE_URL, echo=True)

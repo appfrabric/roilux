@@ -8,8 +8,10 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/uploads:/app/uploads
+      - ./backend/data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:///./data/tropical_wood.db
     networks:
       - roilux-network
     restart: unless-stopped
