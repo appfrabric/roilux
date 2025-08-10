@@ -292,6 +292,26 @@ const VirtualTour: React.FC = () => {
             </div>
           </form>
         </motion.div>
+
+        {/* Contact Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-8 bg-gradient-to-r from-wood-light to-wood-medium rounded-2xl p-6 text-gray-800"
+        >
+          <h3 className="text-xl font-bold mb-4">Prefer to Call?</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="text-center">
+              <p className="font-semibold text-lg">📞 +237-694-88-2369</p>
+              <p className="text-sm opacity-75">Call or WhatsApp</p>
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-lg">📞 +237-691-84-1617</p>
+              <p className="text-sm opacity-75">Call or WhatsApp</p>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

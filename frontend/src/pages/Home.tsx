@@ -298,14 +298,20 @@ const Home: React.FC = () => {
       >
         <div className="grid md:grid-cols-3 gap-6 text-center">
           <div>
-            <h3 className="text-lg font-bold mb-2">{t('call_us')}</h3>
-            <div className="space-y-1">
-              <a href="tel:+2376948823693" className="block hover:text-forest-green transition-colors">
-                +237-694-88-2369
-              </a>
-              <a href="tel:+2376918416173" className="block hover:text-forest-green transition-colors">
-                +237-691-84-1617
-              </a>
+            <h3 className="text-lg font-bold mb-2">{t('call_us')} / WhatsApp</h3>
+            <div className="space-y-2">
+              <div>
+                <a href="tel:+2376948823693" className="block text-lg font-semibold hover:text-forest-green transition-colors">
+                  +237-694-88-2369
+                </a>
+                <p className="text-xs opacity-75">📞 Call or 💬 WhatsApp</p>
+              </div>
+              <div>
+                <a href="tel:+2376918416173" className="block text-lg font-semibold hover:text-forest-green transition-colors">
+                  +237-691-84-1617
+                </a>
+                <p className="text-xs opacity-75">📞 Call or 💬 WhatsApp</p>
+              </div>
             </div>
           </div>
           <div>
