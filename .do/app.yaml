@@ -29,7 +29,7 @@ services:
     repo: appfrabric/roilux
   name: backend
   build_command: pip install -r requirements.txt
-  run_command: uvicorn main:app --host 0.0.0.0 --port $PORT
+  run_command: python -m uvicorn main:app --host 0.0.0.0 --port 8080
   source_dir: backend
   http_port: 8080
   instance_count: 1
@@ -41,7 +41,5 @@ services:
     value: production
   - key: PYTHONUNBUFFERED
     value: "1"
-  - key: HOST
-    value: 0.0.0.0
   - key: DATABASE_URL
     value: sqlite:///./data/tropical_wood.db
