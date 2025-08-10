@@ -386,7 +386,11 @@ const VirtualTour: React.FC = () => {
               <p className="font-semibold text-lg">📞 +237-691-84-1617</p>
               <p className="text-sm opacity-75">Call or WhatsApp</p>
             </div>
-          </div>
+            <div className="text-center">
+              <p className="font-semibold text-lg">📞 +237-681-21-1111</p>
+              <p className="text-sm opacity-75">Call or WhatsApp</p>
+            </div>
+         </div>
         </motion.div>
       </div>
     </div>

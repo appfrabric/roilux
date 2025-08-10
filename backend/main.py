@@ -868,4 +868,11 @@ def reset_password_confirm(request: PasswordResetConfirm, db: Session = Depends(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    import os
+    
+    # Production-ready settings
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", 8000))
+    reload = os.getenv("ENV", "development") != "production"
+    
+    uvicorn.run(app, host=host, port=port, reload=reload)

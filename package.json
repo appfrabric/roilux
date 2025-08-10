@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "docker-compose up",
     "build": "cd frontend && npm run build",
-    "start": "cd frontend && npm start",
+    "start": "cd frontend && npm run serve",
+    "install:all": "npm run install:frontend && npm run install:backend",
     "install:frontend": "cd frontend && npm ci",
-    "install:backend": "cd backend && pip install -r requirements.txt"
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "prestart": "npm run build"
   },
   "workspaces": [
     "frontend"
