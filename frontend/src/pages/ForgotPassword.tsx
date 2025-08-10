@@ -11,6 +11,7 @@ const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +25,7 @@ const ForgotPassword: React.FC = () => {
         type: 'success', 
         text: t('password_reset_sent') || 'A password reset link has been sent to your email address. Please check your email and follow the instructions. The link will expire in 30 minutes.' 
       });
-      setEmail('');
+      setIsSubmitted(true);
     } else {
       setMessage({ 
         type: 'error', 
@@ -102,7 +103,10 @@ const ForgotPassword: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors"
+                  disabled={isSubmitted}
+                  className={`w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors ${
+                    isSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                  }`}
                   placeholder={t('enter_your_email') || 'Enter your email address'}
                 />
                 <EnvelopeIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -110,25 +114,40 @@ const ForgotPassword: React.FC = () => {
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isSubmitted ? 1 : 1.02 }}
+              whileTap={{ scale: isSubmitted ? 1 : 0.98 }}
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-sage-green to-wood-light text-gray-800 font-bold py-3 px-4 rounded-lg hover:from-wood-light hover:to-sage-green transition-all duration-300 disabled:opacity-50"
+              disabled={isLoading || isSubmitted}
+              className={`w-full bg-gradient-to-r from-sage-green to-wood-light text-gray-800 font-bold py-3 px-4 rounded-lg hover:from-wood-light hover:to-sage-green transition-all duration-300 ${
+                (isLoading || isSubmitted) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               <EnvelopeIcon className="w-5 h-5 inline mr-2" />
               {isLoading ? (t('sending') || 'Sending...') : (t('send_reset_link') || 'Send Reset Link')}
             </motion.button>
           </form>
 
-          <div className="mt-6 text-center">
-            <Link
-              to="/admin"
-              className="text-sage-green hover:text-wood-light transition-colors text-sm"
-            >
-              {t('remember_password') || 'Remember your password? Sign in'}
-            </Link>
-          </div>
+          {/* Show sign-in link after successful submission */}
+          {isSubmitted ? (
+            <div className="mt-6 text-center">
+              <Link
+                to="/admin"
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sage-green to-wood-light text-gray-800 font-semibold rounded-lg hover:from-wood-light hover:to-sage-green transition-all duration-300"
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                {t('back_to_sign_in') || 'Back to Sign In'}
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-6 text-center">
+              <Link
+                to="/admin"
+                className="text-sage-green hover:text-wood-light transition-colors text-sm"
+              >
+                {t('remember_password') || 'Remember your password? Sign in'}
+              </Link>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

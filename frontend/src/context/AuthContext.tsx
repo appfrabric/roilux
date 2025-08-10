@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+export type UserRole = 'admin' | 'processor';
+
 interface User {
   id: string;
   username: string;
   email: string;
-  isAdmin: boolean;
+  role: UserRole;
   createdAt: string;
   lastLogin?: string;
 }
@@ -15,7 +17,8 @@ interface AuthContextType {
   login: (credentials: { username: string; password: string }) => boolean;
   logout: () => void;
   changePassword: (oldPassword: string, newPassword: string) => boolean;
-  registerUser: (userData: { username: string; email: string; password: string; isAdmin: boolean }) => boolean;
+  adminChangePassword: (userId: string, newPassword: string) => boolean;
+  registerUser: (userData: { username: string; email: string; password: string; role: UserRole }) => boolean;
   deleteUser: (userId: string) => boolean;
   sendPasswordReset: (email: string) => boolean;
   resetPassword: (token: string, newPassword: string) => boolean;
@@ -50,14 +53,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: '1',
         username: 'admin',
         email: 'roilux.woods@gmail.com',
-        isAdmin: true,
+        role: 'admin',
         createdAt: new Date().toISOString(),
       },
       {
         id: '2',
-        username: 'arthur',
-        email: 'arthur@roilux.com',
-        isAdmin: false,
+        username: 'processor1',
+        email: 'processor@roilux.com',
+        role: 'processor',
         createdAt: new Date(Date.now() - 86400000).toISOString(),
       }
     ];
@@ -69,7 +72,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     // Check localStorage for existing session
     const storedUser = localStorage.getItem('currentUser');
-    return storedUser ? JSON.parse(storedUser) : null;
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      // Migrate old user format to new format
+      if ('isAdmin' in parsedUser && !('role' in parsedUser)) {
+        // Clear old session - force re-login with new system
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('systemUsers');
+        localStorage.removeItem('userPasswords');
+        return null;
+      }
+      return parsedUser;
+    }
+    return null;
   });
 
   // Store passwords separately (in production, these would be hashed)
@@ -80,8 +95,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     
     const defaultPasswords = {
-      '1': 'roilux2024',  // admin
-      '2': 'arthur123'    // arthur
+      '1': 'roilux2024',    // admin
+      '2': 'processor123'   // processor1
     };
     
     localStorage.setItem('userPasswords', JSON.stringify(defaultPasswords));
@@ -134,7 +149,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return true;
   };
 
-  const registerUser = (userData: { username: string; email: string; password: string; isAdmin: boolean }) => {
+  const adminChangePassword = (userId: string, newPassword: string) => {
+    // Only admins can use this function
+    if (!user || user.role !== 'admin') {
+      return false;
+    }
+    
+    // Check if target user exists
+    if (!users.find(u => u.id === userId)) {
+      return false;
+    }
+    
+    const newPasswords = { ...passwords, [userId]: newPassword };
+    updatePasswords(newPasswords);
+    return true;
+  };
+
+  const registerUser = (userData: { username: string; email: string; password: string; role: UserRole }) => {
     // Check if user already exists
     if (users.some(u => u.username === userData.username || u.email === userData.email)) {
       return false;
@@ -144,7 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       id: Date.now().toString(),
       username: userData.username,
       email: userData.email,
-      isAdmin: userData.isAdmin,
+      role: userData.role,
       createdAt: new Date().toISOString(),
     };
     
@@ -188,7 +219,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // For demo purposes, show the reset link in console
     console.log(`Password reset link: ${window.location.origin}/reset-password?token=${resetToken}`);
-    alert(`Demo: Password reset email sent to ${email}\nReset token: ${resetToken}\n(Check console for reset link)\nLink expires in 30 minutes.`);
     
     return true;
   };
@@ -227,6 +257,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     changePassword,
+    adminChangePassword,
     registerUser,
     deleteUser,
     sendPasswordReset,

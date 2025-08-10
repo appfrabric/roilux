@@ -16,7 +16,7 @@ import {
 
 const UserManagement: React.FC = () => {
   const { t } = useTranslation();
-  const { user, users, registerUser, deleteUser, changePassword } = useAuth();
+  const { user, users, registerUser, deleteUser, adminChangePassword } = useAuth();
   const [activeTab, setActiveTab] = useState<'users' | 'register' | 'changePassword'>('users');
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
@@ -26,12 +26,12 @@ const UserManagement: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    isAdmin: false
+    role: 'processor' as 'admin' | 'processor'
   });
 
   // Change password form state
   const [passwordForm, setPasswordForm] = useState({
-    oldPassword: '',
+    selectedUserId: '',
     newPassword: '',
     confirmNewPassword: ''
   });
@@ -56,7 +56,7 @@ const UserManagement: React.FC = () => {
       username: registerForm.username,
       email: registerForm.email,
       password: registerForm.password,
-      isAdmin: registerForm.isAdmin
+      role: registerForm.role
     });
 
     if (success) {
@@ -66,7 +66,7 @@ const UserManagement: React.FC = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        isAdmin: false
+        role: 'processor'
       });
     } else {
       setMessage({ type: 'error', text: t('user_already_exists') || 'Username or email already exists' });
@@ -76,6 +76,11 @@ const UserManagement: React.FC = () => {
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
+
+    if (!passwordForm.selectedUserId) {
+      setMessage({ type: 'error', text: t('select_user') || 'Please select a user' });
+      return;
+    }
 
     if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
       setMessage({ type: 'error', text: t('passwords_dont_match') || 'Passwords do not match' });
@@ -87,17 +92,21 @@ const UserManagement: React.FC = () => {
       return;
     }
 
-    const success = changePassword(passwordForm.oldPassword, passwordForm.newPassword);
+    const success = adminChangePassword(passwordForm.selectedUserId, passwordForm.newPassword);
 
     if (success) {
-      setMessage({ type: 'success', text: t('password_changed_successfully') || 'Password changed successfully' });
+      const selectedUser = users.find(u => u.id === passwordForm.selectedUserId);
+      setMessage({ 
+        type: 'success', 
+        text: t('password_changed_successfully') || `Password changed successfully for ${selectedUser?.username}` 
+      });
       setPasswordForm({
-        oldPassword: '',
+        selectedUserId: '',
         newPassword: '',
         confirmNewPassword: ''
       });
     } else {
-      setMessage({ type: 'error', text: t('current_password_incorrect') || 'Current password is incorrect' });
+      setMessage({ type: 'error', text: t('password_change_failed') || 'Failed to change password' });
     }
   };
 
@@ -150,30 +159,32 @@ const UserManagement: React.FC = () => {
           <UserIcon className="w-5 h-5 inline mr-2" />
           {t('all_users') || 'All Users'}
         </button>
-        {user?.isAdmin && (
-          <button
-            onClick={() => setActiveTab('register')}
-            className={`flex-1 py-3 px-4 rounded-md font-semibold transition-colors ${
-              activeTab === 'register'
-                ? 'bg-white text-sage-green shadow-md'
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            <UserPlusIcon className="w-5 h-5 inline mr-2" />
-            {t('register_user') || 'Register User'}
-          </button>
+        {user?.role === 'admin' && (
+          <>
+            <button
+              onClick={() => setActiveTab('register')}
+              className={`flex-1 py-3 px-4 rounded-md font-semibold transition-colors ${
+                activeTab === 'register'
+                  ? 'bg-white text-sage-green shadow-md'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <UserPlusIcon className="w-5 h-5 inline mr-2" />
+              {t('register_user') || 'Register User'}
+            </button>
+            <button
+              onClick={() => setActiveTab('changePassword')}
+              className={`flex-1 py-3 px-4 rounded-md font-semibold transition-colors ${
+                activeTab === 'changePassword'
+                  ? 'bg-white text-sage-green shadow-md'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <KeyIcon className="w-5 h-5 inline mr-2" />
+              {t('change_password') || 'Change Password'}
+            </button>
+          </>
         )}
-        <button
-          onClick={() => setActiveTab('changePassword')}
-          className={`flex-1 py-3 px-4 rounded-md font-semibold transition-colors ${
-            activeTab === 'changePassword'
-              ? 'bg-white text-sage-green shadow-md'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          <KeyIcon className="w-5 h-5 inline mr-2" />
-          {t('change_password') || 'Change Password'}
-        </button>
       </div>
 
       {/* Message Display */}
@@ -206,9 +217,9 @@ const UserManagement: React.FC = () => {
                 >
                   <div className="flex items-center space-x-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      userData.isAdmin ? 'bg-sage-green' : 'bg-gray-400'
+                      userData.role === 'admin' ? 'bg-sage-green' : 'bg-blue-500'
                     }`}>
-                      {userData.isAdmin ? (
+                      {userData.role === 'admin' ? (
                         <ShieldCheckIcon className="w-6 h-6 text-white" />
                       ) : (
                         <UserIcon className="w-6 h-6 text-white" />
@@ -217,11 +228,11 @@ const UserManagement: React.FC = () => {
                     <div>
                       <div className="flex items-center space-x-2">
                         <h3 className="font-semibold text-gray-900">{userData.username}</h3>
-                        {userData.isAdmin && (
-                          <span className="px-2 py-1 bg-sage-green text-white text-xs rounded-full">
-                            {t('admin') || 'Admin'}
-                          </span>
-                        )}
+                        <span className={`px-2 py-1 text-white text-xs rounded-full ${
+                          userData.role === 'admin' ? 'bg-sage-green' : 'bg-blue-500'
+                        }`}>
+                          {userData.role === 'admin' ? (t('admin') || 'Admin') : (t('processor') || 'Processor')}
+                        </span>
                         {userData.id === user?.id && (
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                             {t('you') || 'You'}
@@ -246,7 +257,7 @@ const UserManagement: React.FC = () => {
                     </div>
                   </div>
                   
-                  {user?.isAdmin && userData.id !== '1' && userData.id !== user.id && (
+                  {user?.role === 'admin' && userData.id !== '1' && userData.id !== user.id && (
                     <button
                       onClick={() => handleDeleteUser(userData.id)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -261,7 +272,7 @@ const UserManagement: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'register' && user?.isAdmin && (
+        {activeTab === 'register' && user?.role === 'admin' && (
           <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('register_new_user') || 'Register New User'}</h2>
             <form onSubmit={handleRegister} className="space-y-6">
@@ -355,17 +366,25 @@ const UserManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  id="isAdmin"
-                  type="checkbox"
-                  checked={registerForm.isAdmin}
-                  onChange={(e) => setRegisterForm(prev => ({ ...prev, isAdmin: e.target.checked }))}
-                  className="h-4 w-4 text-sage-green focus:ring-sage-green border-gray-300 rounded"
-                />
-                <label htmlFor="isAdmin" className="ml-2 block text-sm text-gray-700">
-                  {t('grant_admin_privileges') || 'Grant admin privileges'}
+              <div>
+                <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('user_role') || 'User Role'}
                 </label>
+                <select
+                  id="role"
+                  value={registerForm.role}
+                  onChange={(e) => setRegisterForm(prev => ({ ...prev, role: e.target.value as 'admin' | 'processor' }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-sage-green"
+                >
+                  <option value="processor">{t('processor') || 'Processor'}</option>
+                  <option value="admin">{t('admin') || 'Admin'}</option>
+                </select>
+                <p className="text-sm text-gray-500 mt-1">
+                  {registerForm.role === 'admin' 
+                    ? (t('admin_description') || 'Can register users and manage system') 
+                    : (t('processor_description') || 'Can view and process requests')
+                  }
+                </p>
               </div>
 
               <button
@@ -379,36 +398,28 @@ const UserManagement: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'changePassword' && (
+        {activeTab === 'changePassword' && user?.role === 'admin' && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('change_your_password') || 'Change Your Password'}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('change_user_password') || 'Change User Password'}</h2>
             <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
               <div>
-                <label htmlFor="oldPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('current_password') || 'Current Password'}
+                <label htmlFor="selectedUser" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('select_user') || 'Select User'}
                 </label>
-                <div className="relative">
-                  <input
-                    id="oldPassword"
-                    type={showPasswords.oldPassword ? 'text' : 'password'}
-                    value={passwordForm.oldPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, oldPassword: e.target.value }))}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-sage-green pr-12"
-                    placeholder={t('enter_current_password') || 'Enter current password'}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePasswordVisibility('oldPassword')}
-                    className="absolute right-3 top-3 text-gray-500"
-                  >
-                    {showPasswords.oldPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
+                <select
+                  id="selectedUser"
+                  value={passwordForm.selectedUserId}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, selectedUserId: e.target.value }))}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-sage-green"
+                >
+                  <option value="">{t('choose_user') || 'Choose a user...'}</option>
+                  {users.map((userData) => (
+                    <option key={userData.id} value={userData.id}>
+                      {userData.username} ({userData.role === 'admin' ? t('admin') || 'Admin' : t('processor') || 'Processor'})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

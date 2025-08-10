@@ -8,11 +8,8 @@ import {
   ClockIcon,
   BuildingOfficeIcon,
   ArrowRightOnRectangleIcon,
-  EyeIcon,
-  TrashIcon,
-  UsersIcon
+  EyeIcon
 } from '@heroicons/react/24/outline';
-import UserManagement from './UserManagement';
 
 interface ContactRequest {
   id: string;
@@ -41,16 +38,15 @@ interface TourRequest {
 
 type Request = ContactRequest | TourRequest;
 
-interface AdminProps {
+interface ProcessorDashboardProps {
   onLogout: () => void;
 }
 
-const Admin: React.FC<AdminProps> = ({ onLogout }) => {
+const ProcessorDashboard: React.FC<ProcessorDashboardProps> = ({ onLogout }) => {
   const { t } = useTranslation();
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedTab, setSelectedTab] = useState<'contact' | 'tour'>('contact');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
-  const [activeSection, setActiveSection] = useState<'requests' | 'users'>('requests');
 
   // Load mock data (in production, this would come from an API)
   useEffect(() => {
@@ -115,13 +111,6 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
     });
   };
 
-  const deleteRequest = (id: string) => {
-    setRequests(prev => prev.filter(req => req.id !== id));
-    if (selectedRequest?.id === id) {
-      setSelectedRequest(null);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-light-green via-white to-wood-light">
       {/* Header */}
@@ -139,51 +128,23 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                 }}
               />
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">{t('admin_dashboard') || 'Admin Dashboard'}</h1>
-                <p className="text-gray-700">{t('company_name')} - {t('company_subtitle')}</p>
+                <h1 className="text-2xl font-bold text-gray-800">{t('processor_dashboard') || 'Processor Dashboard'}</h1>
+                <p className="text-gray-700">{t('company_name')} - {t('view_requests') || 'View Requests'}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              {/* Section Switcher */}
-              <div className="flex space-x-2 bg-white/20 backdrop-blur rounded-lg p-1">
-                <button
-                  onClick={() => setActiveSection('requests')}
-                  className={`px-3 py-2 rounded-md font-semibold transition-colors ${
-                    activeSection === 'requests'
-                      ? 'bg-white text-gray-800 shadow-md'
-                      : 'text-gray-700 hover:text-gray-900'
-                  }`}
-                >
-                  <EnvelopeIcon className="h-4 w-4 inline mr-2" />
-                  {t('requests') || 'Requests'}
-                </button>
-                <button
-                  onClick={() => setActiveSection('users')}
-                  className={`px-3 py-2 rounded-md font-semibold transition-colors ${
-                    activeSection === 'users'
-                      ? 'bg-white text-gray-800 shadow-md'
-                      : 'text-gray-700 hover:text-gray-900'
-                  }`}
-                >
-                  <UsersIcon className="h-4 w-4 inline mr-2" />
-                  {t('users') || 'Users'}
-                </button>
-              </div>
-              <button
-                onClick={onLogout}
-                className="flex items-center space-x-2 px-4 py-2 bg-white/20 backdrop-blur text-gray-800 rounded-lg hover:bg-white/30 transition-colors"
-              >
-                <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                <span>{t('logout') || 'Logout'}</span>
-              </button>
-            </div>
+            <button
+              onClick={onLogout}
+              className="flex items-center space-x-2 px-4 py-2 bg-white/20 backdrop-blur text-gray-800 rounded-lg hover:bg-white/30 transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="h-5 w-5" />
+              <span>{t('logout') || 'Logout'}</span>
+            </button>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {activeSection === 'requests' ? (
-          <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Sidebar - Request List */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -331,24 +292,13 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                           </p>
                           {(selectedRequest as TourRequest).specialRequests && (
                             <div className="bg-gray-50 rounded-lg p-4">
-                              <p className="font-medium text-sage-green mb-2">{t('admin_special_requests') || 'Special Requests'}</p>
+                              <p className="font-medium text-sage-green mb-2">{t('special_requests') || 'Special Requests'}</p>
                               <p className="text-gray-700">{(selectedRequest as TourRequest).specialRequests}</p>
                             </div>
                           )}
                         </div>
                       </div>
                     )}
-
-                    {/* Actions */}
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => deleteRequest(selectedRequest.id)}
-                        className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
-                      >
-                        <TrashIcon className="h-4 w-4 mr-2" />
-                        {t('delete') || 'Delete'}
-                      </button>
-                    </div>
                   </div>
                 </div>
               ) : (
@@ -359,13 +309,10 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
               )}
             </div>
           </div>
-          </div>
-        ) : (
-          <UserManagement />
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Admin;
+export default ProcessorDashboard;
