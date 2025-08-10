@@ -93,7 +93,7 @@ const VisitCompany: React.FC = () => {
         transition={{ duration: 0.6 }}
         className="text-center"
       >
-        <h1 className="text-5xl md:text-6xl font-bold text-sage-green mb-6">
+        <h1 className="text-5xl lg:text-6xl font-bold text-sage-green mb-6">
           {t('nav_visit') || 'Visit Our Company'}
         </h1>
         <p className="text-2xl text-gray-600 mb-8 max-w-4xl mx-auto">
@@ -134,7 +134,7 @@ const VisitCompany: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8">
           {factoryVideos.map((video, index) => (
             <motion.div
               key={video.id}
@@ -206,7 +206,7 @@ const VisitCompany: React.FC = () => {
         </div>
         
         {/* Gallery Navigation Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {Object.entries(galleries).map(([key, gallery]) => (
             <motion.button
               key={key}
@@ -255,7 +255,7 @@ const VisitCompany: React.FC = () => {
           
           {/* Gallery Grid */}
           <div className="p-8">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {currentGalleryData.images.map((image, index) => (
                 <motion.div
                   key={`${currentGallery}-${index}`}
@@ -308,7 +308,7 @@ const VisitCompany: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {[
             {
               icon: '🏭',

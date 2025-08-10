@@ -144,7 +144,7 @@ const VirtualTour: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-forest-green mb-6">
+        <h1 className="text-4xl lg:text-5xl font-bold text-forest-green mb-6">
           Schedule Your Virtual Tour
         </h1>
         <p className="text-xl text-gray-700 mb-8">
@@ -152,7 +152,7 @@ const VirtualTour: React.FC = () => {
         </p>
       </motion.section>
 
-      <div className="grid lg:grid-cols-2 gap-12">
+      <div className="grid xl:grid-cols-2 gap-12">
         {/* Tour Information */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -377,7 +377,7 @@ const VirtualTour: React.FC = () => {
           className="mt-8 bg-gradient-to-r from-wood-light to-wood-medium rounded-2xl p-6 text-gray-800"
         >
           <h3 className="text-xl font-bold mb-4">Prefer to Call?</h3>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid xl:grid-cols-2 gap-4">
             <div className="text-center">
               <p className="font-semibold text-lg">📞 +237-694-88-2369</p>
               <p className="text-sm opacity-75">Call or WhatsApp</p>

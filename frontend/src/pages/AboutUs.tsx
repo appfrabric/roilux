@@ -43,7 +43,7 @@ const AboutUs: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-forest-green mb-6">
+        <h1 className="text-4xl lg:text-5xl font-bold text-forest-green mb-6">
           {t('about_tropical_wood')}
         </h1>
         <p className="text-xl text-gray-600 mb-6">
@@ -73,7 +73,7 @@ const AboutUs: React.FC = () => {
         <h2 className="text-3xl font-bold text-forest-green mb-6">
           {t('our_company') || 'Our Company'}
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {factoryHighlights.map((image, index) => (
             <motion.div
               key={index}
@@ -115,7 +115,7 @@ const AboutUs: React.FC = () => {
           {t('our_values')}
         </motion.h2>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {values.map((value, index) => (
             <motion.div
               key={value.title}
@@ -142,7 +142,7 @@ const AboutUs: React.FC = () => {
         <h2 className="text-3xl font-bold text-forest-green mb-6">
           {t('certifications') || 'Certifications & Quality Assurance'}
         </h2>
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           <div>
             <h3 className="text-xl font-semibold text-forest-green mb-4">
               {t('our_certifications') || 'Our Certifications'}
@@ -205,7 +205,7 @@ const AboutUs: React.FC = () => {
         className="bg-gradient-to-b from-wood-light to-wood-medium rounded-2xl p-8 text-gray-800"
       >
         <h2 className="text-3xl font-bold mb-6">{t('why_choose_us')}</h2>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-6">
           <div>
             <h3 className="text-xl font-semibold mb-3">{t('production_capacity')}</h3>
             <ul className="space-y-2">

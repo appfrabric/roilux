@@ -276,7 +276,7 @@ const UserManagement: React.FC = () => {
           <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('register_new_user') || 'Register New User'}</h2>
             <form onSubmit={handleRegister} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid lg:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
                     {t('username') || 'Username'}

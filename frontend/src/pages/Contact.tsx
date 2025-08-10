@@ -138,7 +138,7 @@ const Contact: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-forest-green mb-6">
+        <h1 className="text-4xl lg:text-5xl font-bold text-forest-green mb-6">
           {t('contact_us_title')}
         </h1>
         <p className="text-xl text-gray-700 mb-8">

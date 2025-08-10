@@ -48,7 +48,7 @@ const Products: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-forest-green mb-6">
+        <h1 className="text-4xl lg:text-5xl font-bold text-forest-green mb-6">
           {t('our_products')}
         </h1>
         <p className="text-xl text-gray-700 mb-4">
@@ -78,7 +78,7 @@ const Products: React.FC = () => {
         </div>
       </motion.section>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
         {productCategories.map((category, index) => (
           <motion.div
             key={category.id}

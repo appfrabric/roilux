@@ -132,7 +132,7 @@ const ProductCategory: React.FC = () => {
         <h2 className="text-2xl font-bold text-forest-green">
           {t('product_gallery') || 'Product Gallery'}
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {productImages.galleryImages.map((image, index) => (
             <motion.div
               key={index}
@@ -169,7 +169,7 @@ const ProductCategory: React.FC = () => {
         <h3 className="text-2xl font-bold text-forest-green mb-4">
           {t('product_details') || 'Product Details'}
         </h3>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-6">
           <div>
             <h4 className="font-semibold text-lg mb-2">{t('specifications') || 'Specifications'}</h4>
             {category === 'plywood' && (

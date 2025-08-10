@@ -120,13 +120,13 @@ const Home: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                   >
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+                    <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold mb-4">
                       {t('welcome_to')}
                     </h1>
-                    <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-4 text-sage-green">
+                    <h2 className="text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 text-sage-green">
                       {t('company_name')}
                     </h2>
-                    <p className="text-xl md:text-2xl mb-2 opacity-90">
+                    <p className="text-xl lg:text-2xl mb-2 opacity-90">
                       {t('company_subtitle')}
                     </p>
                   </motion.div>
@@ -211,7 +211,7 @@ const Home: React.FC = () => {
       </motion.section>
 
       {/* Features Grid */}
-      <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="grid lg:grid-cols-2 xl:grid-cols-4 gap-6">
         {features.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -239,7 +239,7 @@ const Home: React.FC = () => {
         >
           {t('product_categories')}
         </motion.h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
           {[
             { name: t('plywood'), emoji: '🪵' },
             { name: t('melamine_plywood'), emoji: '🎨' },
@@ -296,7 +296,7 @@ const Home: React.FC = () => {
         transition={{ duration: 0.6, delay: 0.7 }}
         className="bg-gradient-to-r from-wood-light to-wood-medium rounded-2xl p-8 text-gray-800"
       >
-        <div className="grid md:grid-cols-3 gap-6 text-center">
+        <div className="grid lg:grid-cols-3 gap-6 text-center">
           <div>
             <h3 className="text-lg font-bold mb-2">{t('call_us')} / WhatsApp</h3>
             <div className="space-y-2">
