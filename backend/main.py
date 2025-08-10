@@ -10,9 +10,10 @@ import json
 import shutil
 from pathlib import Path
 import httpx
-from database import get_db, create_tables, User, ContactMessage, VirtualTour, Order
+from database import get_db, create_tables, User, ContactMessage, VirtualTour, Order, AdminUser
 from translations import get_translation, get_user_language
 import uuid
+import hashlib
 
 app = FastAPI(title="Tropical Wood API", version="1.0.0")
 
@@ -29,6 +30,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     create_tables()
+    await create_default_admin()
 
 # Create directories for storing uploads
 UPLOAD_DIR = Path("uploads")
@@ -525,6 +527,151 @@ def get_company_info():
 def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+# Authentication Models
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class AdminUserRegistration(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    role: str
+
+class PasswordChangeRequest(BaseModel):
+    username: str
+    new_password: str
+
+def hash_password(password: str) -> str:
+    """Hash password using SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# Initialize default admin users
+@app.on_event("startup")
+async def create_default_admin():
+    """Create default admin user if not exists"""
+    db = next(get_db())
+    
+    # Check if admin user already exists
+    existing_admin = db.query(AdminUser).filter(AdminUser.username == "admin").first()
+    if not existing_admin:
+        admin_user = AdminUser(
+            username="admin",
+            email="roilux.woods@gmail.com",
+            password_hash=hash_password("roilux2024"),
+            role="admin"
+        )
+        db.add(admin_user)
+        
+        # Add a sample processor
+        processor_user = AdminUser(
+            username="processor1",
+            email="processor@roilux.com", 
+            password_hash=hash_password("processor123"),
+            role="processor"
+        )
+        db.add(processor_user)
+        
+        db.commit()
+
+# Authentication endpoints
+@app.post("/api/auth/login")
+def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    """Admin/processor login"""
+    admin_user = db.query(AdminUser).filter(AdminUser.username == login_data.username).first()
+    
+    if not admin_user or admin_user.password_hash != hash_password(login_data.password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    # Update last login
+    admin_user.last_login = datetime.now()
+    db.commit()
+    
+    return {
+        "success": True,
+        "user": {
+            "id": admin_user.id,
+            "username": admin_user.username,
+            "email": admin_user.email,
+            "role": admin_user.role,
+            "createdAt": admin_user.created_at.isoformat(),
+            "lastLogin": admin_user.last_login.isoformat() if admin_user.last_login else None
+        }
+    }
+
+@app.post("/api/auth/register")
+def register_admin_user(user_data: AdminUserRegistration, db: Session = Depends(get_db)):
+    """Register new admin/processor user"""
+    
+    # Check if user already exists
+    existing_user = db.query(AdminUser).filter(
+        (AdminUser.username == user_data.username) | (AdminUser.email == user_data.email)
+    ).first()
+    
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
+    
+    # Validate role
+    if user_data.role not in ["admin", "processor"]:
+        raise HTTPException(status_code=400, detail="Invalid role. Must be 'admin' or 'processor'")
+    
+    # Create new admin user
+    admin_user = AdminUser(
+        username=user_data.username,
+        email=user_data.email,
+        password_hash=hash_password(user_data.password),
+        role=user_data.role
+    )
+    
+    db.add(admin_user)
+    db.commit()
+    db.refresh(admin_user)
+    
+    return {
+        "success": True,
+        "message": "User registered successfully",
+        "user_id": admin_user.id
+    }
+
+@app.post("/api/auth/change-password")
+def change_password(password_data: PasswordChangeRequest, db: Session = Depends(get_db)):
+    """Change user password (admin only)"""
+    
+    admin_user = db.query(AdminUser).filter(AdminUser.username == password_data.username).first()
+    
+    if not admin_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update password
+    admin_user.password_hash = hash_password(password_data.new_password)
+    admin_user.updated_at = datetime.now()
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "Password changed successfully"
+    }
+
+@app.get("/api/auth/users")
+def get_all_admin_users(db: Session = Depends(get_db)):
+    """Get all admin users"""
+    admin_users = db.query(AdminUser).all()
+    
+    return {
+        "users": [
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "role": user.role,
+                "createdAt": user.created_at.isoformat(),
+                "lastLogin": user.last_login.isoformat() if user.last_login else None,
+                "isActive": user.is_active
+            } for user in admin_users
+        ],
+        "total": len(admin_users)
+    }
 
 if __name__ == "__main__":
     import uvicorn
