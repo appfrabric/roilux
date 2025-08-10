@@ -2,43 +2,29 @@ version: '3.8'
 
 services:
   backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
+    build: ./backend
     container_name: roilux-backend
-    expose:
-      - "8000"
     volumes:
-      - uploads:/app/uploads
+      - ./backend/uploads:/app/uploads
+      - ./backend/tropical_wood.db:/app/tropical_wood.db
     environment:
       - PYTHONUNBUFFERED=1
+      - ENV=production
     networks:
       - roilux-network
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     container_name: roilux-frontend
     ports:
       - "80:80"
-      - "443:443"  # For HTTPS in production
+      - "443:443"
     depends_on:
       - backend
     networks:
       - roilux-network
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    restart: unless-stopped
 
 networks:
   roilux-network:
@@ -46,4 +32,4 @@ networks:
 
 volumes:
   uploads:
-    driver: local
+  database:
