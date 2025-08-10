@@ -28,6 +28,7 @@ services:
     deploy_on_push: true
     repo: appfrabric/roilux
   name: backend
+  build_command: pip install -r requirements.txt
   run_command: uvicorn main:app --host 0.0.0.0 --port $PORT
   source_dir: backend
   http_port: 8080
