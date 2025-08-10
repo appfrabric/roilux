@@ -27,7 +27,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "serve -s build -l $PORT",
+    "start": "serve -s build -p $PORT --host 0.0.0.0",
     "dev": "DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "serve": "serve -s build",
