@@ -673,6 +673,99 @@ def get_all_admin_users(db: Session = Depends(get_db)):
         "total": len(admin_users)
     }
 
+# Password Reset Models
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
+
+# Password Reset endpoints
+@app.post("/api/auth/request-password-reset")
+def request_password_reset(request: PasswordResetRequest, db: Session = Depends(get_db)):
+    """Request password reset"""
+    admin_user = db.query(AdminUser).filter(AdminUser.email == request.email).first()
+    
+    if not admin_user:
+        # Don't reveal if email exists or not for security
+        return {"success": True, "message": "If the email exists, a reset link will be sent"}
+    
+    # Generate reset token
+    import secrets
+    reset_token = secrets.token_urlsafe(32)
+    
+    # Store token with expiration (30 minutes)
+    # In production, you'd store this in database with expiration
+    # For now, we'll use a simple in-memory store
+    import time
+    if not hasattr(app.state, 'reset_tokens'):
+        app.state.reset_tokens = {}
+    
+    app.state.reset_tokens[reset_token] = {
+        'user_id': admin_user.id,
+        'email': admin_user.email,
+        'expires': time.time() + 1800  # 30 minutes
+    }
+    
+    # In production, you would send email here
+    # For demo, we'll log the reset link
+    reset_link = f"http://localhost:3000/reset-password?token={reset_token}"
+    print(f"Password reset link: {reset_link}")
+    
+    return {"success": True, "message": "Password reset link sent"}
+
+@app.post("/api/auth/validate-reset-token")
+def validate_reset_token(token_data: dict, db: Session = Depends(get_db)):
+    """Validate password reset token"""
+    token = token_data.get('token')
+    
+    if not hasattr(app.state, 'reset_tokens'):
+        return {"valid": False}
+    
+    token_info = app.state.reset_tokens.get(token)
+    if not token_info:
+        return {"valid": False}
+    
+    import time
+    if time.time() > token_info['expires']:
+        # Token expired, remove it
+        del app.state.reset_tokens[token]
+        return {"valid": False}
+    
+    return {"valid": True}
+
+@app.post("/api/auth/reset-password")
+def reset_password_confirm(request: PasswordResetConfirm, db: Session = Depends(get_db)):
+    """Confirm password reset"""
+    if not hasattr(app.state, 'reset_tokens'):
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    token_info = app.state.reset_tokens.get(request.token)
+    if not token_info:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    import time
+    if time.time() > token_info['expires']:
+        # Token expired, remove it
+        del app.state.reset_tokens[request.token]
+        raise HTTPException(status_code=400, detail="Reset token has expired")
+    
+    # Get user and update password
+    admin_user = db.query(AdminUser).filter(AdminUser.id == token_info['user_id']).first()
+    if not admin_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update password
+    admin_user.password_hash = hash_password(request.new_password)
+    admin_user.updated_at = datetime.now()
+    db.commit()
+    
+    # Remove used token
+    del app.state.reset_tokens[request.token]
+    
+    return {"success": True, "message": "Password reset successfully"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

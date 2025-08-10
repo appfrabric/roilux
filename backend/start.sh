@@ -1,21 +1,18 @@
 #!/bin/bash
 
-# Start MySQL service
-service mysql start
+echo "Starting Tropical Wood Backend API..."
+echo "Using SQLite database: ./tropical_wood.db"
 
-# Wait for MySQL to be ready
-until mysqladmin ping >/dev/null 2>&1; do
-    echo "Waiting for MySQL to start..."
-    sleep 2
-done
-
-# Create database and user if they don't exist
-mysql -e "CREATE DATABASE IF NOT EXISTS tropical_wood;"
-mysql -e "CREATE USER IF NOT EXISTS 'roilux'@'localhost' IDENTIFIED BY 'roilux2024';"
-mysql -e "GRANT ALL PRIVILEGES ON tropical_wood.* TO 'roilux'@'localhost';"
-mysql -e "FLUSH PRIVILEGES;"
-
-echo "MySQL is ready!"
+# Install dependencies if needed
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+else
+    source venv/bin/activate
+fi
 
 # Start the FastAPI application
-uvicorn main:app --host 0.0.0.0 --port 8000
+echo "Starting FastAPI server on http://localhost:8000"
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload

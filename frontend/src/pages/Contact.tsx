@@ -73,6 +73,7 @@ const Contact: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log('Submitting contact form with data:', formData);
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -81,12 +82,28 @@ const Contact: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to send message');
+        try {
+          const errorData = JSON.parse(responseText);
+          throw new Error(errorData.detail || 'Failed to send message');
+        } catch (parseError) {
+          throw new Error(`Server error: ${response.status}. Response: ${responseText}`);
+        }
       }
 
-      const result = await response.json();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
+      
       console.log('Contact message sent successfully:', result);
       setIsSubmitted(true);
     } catch (error) {

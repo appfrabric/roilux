@@ -116,9 +116,9 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (window.confirm(t('confirm_delete_user') || 'Are you sure you want to delete this user?')) {
-      const success = deleteUser(userId);
+      const success = await deleteUser(userId);
       if (success) {
         setMessage({ type: 'success', text: t('user_deleted_successfully') || 'User deleted successfully' });
       } else {
