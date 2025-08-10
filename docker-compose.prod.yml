@@ -6,7 +6,6 @@ services:
     container_name: roilux-backend
     volumes:
       - ./backend/uploads:/app/uploads
-      - ./backend/tropical_wood.db:/app/tropical_wood.db
     environment:
       - PYTHONUNBUFFERED=1
       - ENV=production

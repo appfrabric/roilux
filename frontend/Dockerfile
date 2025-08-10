@@ -12,6 +12,11 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Set production environment variables
+ENV NODE_ENV=production
+ENV GENERATE_SOURCEMAP=false
+ENV PUBLIC_URL=/
+
 # Build the application
 RUN npm run build
 

@@ -61,18 +61,50 @@ ufw reload
 
 ## Troubleshooting "Invalid Host Header" Error
 
-If you see "Invalid Host header" error, the nginx configuration should handle this. If the issue persists:
+If you see "Invalid Host header" error, try these solutions:
 
-1. Check nginx logs:
+### Solution 1: Use Alternative Nginx Config
 ```bash
-docker-compose -f docker-compose.prod.yml logs frontend
+# Stop containers
+docker-compose -f docker-compose.prod.yml down
+
+# Replace nginx config with alternative version
+cp frontend/nginx-alt.conf frontend/nginx.conf
+
+# Rebuild and start
+docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-2. Verify nginx is serving static files correctly:
+### Solution 2: Check Nginx Logs
+```bash
+# Check frontend logs
+docker-compose -f docker-compose.prod.yml logs frontend
+
+# Check if containers are communicating
+docker exec roilux-frontend curl -I http://backend:8000/health
+```
+
+### Solution 3: Test Direct Access
 ```bash
 # Test if the React app is built and served correctly
 curl -I http://your-domain-or-ip
+
+# Test API proxy
+curl -I http://your-domain-or-ip/api/contact
 ```
+
+### Solution 4: Force Rebuild Without Cache
+```bash
+# Complete rebuild
+docker-compose -f docker-compose.prod.yml down
+docker system prune -f
+docker-compose -f docker-compose.prod.yml up -d --build --force-recreate
+```
+
+### Solution 5: Check Domain Configuration
+- Ensure your domain DNS points to the correct IP
+- If using a subdomain, make sure it's configured properly
+- Test with direct IP address first
 
 ## SSL Setup (Optional but Recommended)
 
