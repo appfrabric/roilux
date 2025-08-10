@@ -234,7 +234,7 @@ const ProductCategory: React.FC = () => {
             {t('get_quote') || 'Get a Quote'}
           </Link>
           <a
-            href="https://wa.me/2376812111"
+            href="https://wa.me/2376948823693"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-forest-green transition-all"

@@ -299,9 +299,14 @@ const Home: React.FC = () => {
         <div className="grid md:grid-cols-3 gap-6 text-center">
           <div>
             <h3 className="text-lg font-bold mb-2">{t('call_us')}</h3>
-            <a href="tel:+2376812111" className="hover:text-forest-green transition-colors">
-              +237-681-21-1111
-            </a>
+            <div className="space-y-1">
+              <a href="tel:+2376948823693" className="block hover:text-forest-green transition-colors">
+                +237-694-88-2369
+              </a>
+              <a href="tel:+2376918416173" className="block hover:text-forest-green transition-colors">
+                +237-691-84-1617
+              </a>
+            </div>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-2">{t('email_us')}</h3>

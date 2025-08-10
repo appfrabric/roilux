@@ -111,13 +111,18 @@ const Contact: React.FC = () => {
                   <p>{t('abonbang')}</p>
                 </div>
               </div>
-              <div className="flex items-center">
-                <PhoneIcon className="w-5 h-5 mr-3" />
+              <div className="flex items-start">
+                <PhoneIcon className="w-5 h-5 mr-3 flex-shrink-0 mt-1" />
                 <div>
                   <p className="font-semibold">{t('phone')}</p>
-                  <a href="tel:+2376812111" className="hover:text-sage-green transition-colors">
-                    +237-681-21-1111
-                  </a>
+                  <div className="space-y-1">
+                    <a href="tel:+2376948823693" className="block hover:text-sage-green transition-colors">
+                      +237-694-88-2369
+                    </a>
+                    <a href="tel:+2376918416173" className="block hover:text-sage-green transition-colors">
+                      +237-691-84-1617
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center">
@@ -163,15 +168,27 @@ const Contact: React.FC = () => {
             </h3>
             <div className="space-y-3">
               <a 
-                href="https://wa.me/2376812111" 
+                href="https://wa.me/2376948823693" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <span className="text-2xl mr-3">📱</span>
                 <div>
-                  <p className="font-semibold text-green-700">{t('whatsapp')}</p>
-                  <p className="text-sm text-gray-600">{t('chat_directly')}</p>
+                  <p className="font-semibold text-green-700">{t('whatsapp')} 1</p>
+                  <p className="text-sm text-gray-600">+237-694-88-2369</p>
+                </div>
+              </a>
+              <a 
+                href="https://wa.me/2376918416173" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+              >
+                <span className="text-2xl mr-3">📱</span>
+                <div>
+                  <p className="font-semibold text-green-700">{t('whatsapp')} 2</p>
+                  <p className="text-sm text-gray-600">+237-691-84-1617</p>
                 </div>
               </a>
               <a 
