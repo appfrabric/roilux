@@ -3,16 +3,14 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { KeyIcon, EyeIcon, EyeSlashIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { KeyIcon, EyeIcon, EyeSlashIcon, ArrowLeftIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 const PasswordReset: React.FC = () => {
   const { t } = useTranslation();
-  const { sendPasswordReset, resetPassword } = useAuth();
+  const { resetPassword, validateResetToken } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
-  const [mode, setMode] = useState<'request' | 'reset'>('request');
-  const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +18,7 @@ const PasswordReset: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
 
   useEffect(() => {
     // Check if there's a reset token in the URL
@@ -27,31 +26,21 @@ const PasswordReset: React.FC = () => {
     const resetToken = params.get('token');
     if (resetToken) {
       setToken(resetToken);
-      setMode('reset');
-    }
-  }, [location]);
-
-  const handleSendReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage(null);
-
-    const success = sendPasswordReset(email);
-    
-    if (success) {
-      setMessage({ 
-        type: 'success', 
-        text: t('password_reset_sent') || 'Password reset email has been sent to your email address. Please check your email and follow the instructions.' 
-      });
+      // Validate the token
+      const isValid = validateResetToken(resetToken);
+      setTokenValid(isValid);
+      if (!isValid) {
+        setMessage({
+          type: 'error',
+          text: t('reset_token_expired') || 'This password reset link has expired or is invalid. Please request a new password reset.'
+        });
+      }
     } else {
-      setMessage({ 
-        type: 'error', 
-        text: t('email_not_found') || 'Email address not found in our system.' 
-      });
+      // No token in URL, redirect to forgot password page
+      navigate('/forgot-password');
     }
-    
-    setIsLoading(false);
-  };
+  }, [location, navigate, validateResetToken, t]);
+
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,10 +106,7 @@ const PasswordReset: React.FC = () => {
             }}
           />
           <h1 className="text-2xl font-bold text-gray-800">
-            {mode === 'request' 
-              ? (t('forgot_password') || 'Forgot Password')
-              : (t('reset_password') || 'Reset Password')
-            }
+            {t('reset_password') || 'Reset Password'}
           </h1>
           <p className="text-gray-700 mt-2">{t('company_name')} - {t('company_subtitle')}</p>
         </div>
@@ -151,38 +137,24 @@ const PasswordReset: React.FC = () => {
             </motion.div>
           )}
 
-          {mode === 'request' ? (
-            /* Request Password Reset Form */
-            <form onSubmit={handleSendReset} className="space-y-6">
-              <div>
-                <p className="text-gray-600 mb-4">
-                  {t('password_reset_instructions') || 'Enter your email address below and we\'ll send you a link to reset your password.'}
-                </p>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('email_address') || 'Email Address'}
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors"
-                  placeholder={t('enter_your_email') || 'Enter your email address'}
-                />
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-sage-green to-wood-light text-gray-800 font-bold py-3 px-4 rounded-lg hover:from-wood-light hover:to-sage-green transition-all duration-300 disabled:opacity-50"
+          {/* Token Validation Check */}
+          {tokenValid === false ? (
+            <div className="text-center py-8">
+              <ExclamationTriangleIcon className="h-16 w-16 mx-auto text-red-500 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                {t('invalid_reset_link') || 'Invalid Reset Link'}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {t('reset_link_expired_message') || 'This password reset link has expired or is invalid. Reset links are only valid for 30 minutes.'}
+              </p>
+              <button
+                onClick={() => navigate('/forgot-password')}
+                className="bg-gradient-to-r from-sage-green to-wood-light text-gray-800 font-bold py-2 px-4 rounded-lg hover:from-wood-light hover:to-sage-green transition-all duration-300"
               >
-                {isLoading ? (t('sending') || 'Sending...') : (t('send_reset_link') || 'Send Reset Link')}
-              </motion.button>
-            </form>
-          ) : (
+                {t('request_new_reset') || 'Request New Reset Link'}
+              </button>
+            </div>
+          ) : tokenValid === true ? (
             /* Reset Password Form */
             <form onSubmit={handlePasswordReset} className="space-y-6">
               <div>
@@ -262,16 +234,10 @@ const PasswordReset: React.FC = () => {
                 {isLoading ? (t('resetting') || 'Resetting...') : (t('reset_password') || 'Reset Password')}
               </motion.button>
             </form>
-          )}
-
-          {mode === 'request' && (
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => navigate('/admin')}
-                className="text-sage-green hover:text-wood-light transition-colors text-sm"
-              >
-                {t('remember_password') || 'Remember your password? Sign in'}
-              </button>
+          ) : (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-green mx-auto"></div>
+              <p className="text-gray-600 mt-2">{t('validating_token') || 'Validating reset token...'}</p>
             </div>
           )}
         </div>

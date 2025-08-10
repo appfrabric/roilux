@@ -109,7 +109,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
           <div className="mt-6 text-center">
             <Link
-              to="/reset-password"
+              to="/forgot-password"
               className="text-sage-green hover:text-wood-light transition-colors text-sm font-medium"
             >
               {t('forgot_password') || 'Forgot Password?'}

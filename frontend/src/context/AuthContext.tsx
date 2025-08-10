@@ -19,6 +19,7 @@ interface AuthContextType {
   deleteUser: (userId: string) => boolean;
   sendPasswordReset: (email: string) => boolean;
   resetPassword: (token: string, newPassword: string) => boolean;
+  validateResetToken: (token: string) => boolean;
   isAuthenticated: boolean;
 }
 
@@ -181,15 +182,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resetTokens[resetToken] = {
       userId: foundUser.id,
       email: foundUser.email,
-      expires: Date.now() + 3600000 // 1 hour
+      expires: Date.now() + 1800000 // 30 minutes (30 * 60 * 1000)
     };
     localStorage.setItem('resetTokens', JSON.stringify(resetTokens));
     
     // For demo purposes, show the reset link in console
     console.log(`Password reset link: ${window.location.origin}/reset-password?token=${resetToken}`);
-    alert(`Demo: Password reset email sent to ${email}\nReset token: ${resetToken}\n(Check console for reset link)`);
+    alert(`Demo: Password reset email sent to ${email}\nReset token: ${resetToken}\n(Check console for reset link)\nLink expires in 30 minutes.`);
     
     return true;
+  };
+
+  const validateResetToken = (token: string) => {
+    const resetTokens = JSON.parse(localStorage.getItem('resetTokens') || '{}');
+    const tokenData = resetTokens[token];
+    
+    // Check if token exists and hasn't expired
+    return tokenData && tokenData.expires > Date.now();
   };
 
   const resetPassword = (token: string, newPassword: string) => {
@@ -222,6 +231,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     deleteUser,
     sendPasswordReset,
     resetPassword,
+    validateResetToken,
     isAuthenticated,
   };
 

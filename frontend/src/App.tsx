@@ -12,6 +12,8 @@ import VisitCompany from './pages/VisitCompany';
 import VirtualTour from './pages/VirtualTour';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import ForgotPassword from './pages/ForgotPassword';
+import PasswordReset from './pages/PasswordReset';
 
 function App() {
   return (
@@ -27,6 +29,10 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
+          {/* Password Reset Routes - Full Screen */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<PasswordReset />} />
           
           {/* Regular Routes with Navigation */}
           <Route path="/*" element={<MainLayout />} />
