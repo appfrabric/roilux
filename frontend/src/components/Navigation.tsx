@@ -19,12 +19,23 @@ const Navigation: React.FC = () => {
           <Link to="/" className="flex items-center space-x-3">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="text-2xl font-bold text-forest-green"
+              className="flex items-center space-x-3"
             >
-              {t('company_name')}
-              <span className="text-sm font-normal text-forest-green opacity-70 ml-2">
-                {t('company_subtitle')}
-              </span>
+              <img
+                src="/assets/logo.jpg"
+                alt="Tropical Wood Logo"
+                className="h-12 w-12 rounded-full object-cover border-2 border-forest-green"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
+              <div className="text-2xl font-bold text-forest-green">
+                {t('company_name')}
+                <span className="text-sm font-normal text-forest-green opacity-70 ml-2">
+                  {t('company_subtitle')}
+                </span>
+              </div>
             </motion.div>
           </Link>
 
@@ -86,6 +97,13 @@ const Navigation: React.FC = () => {
             </Link>
             
             <LanguageSwitcher />
+            
+            <Link
+              to="/admin"
+              className="px-3 py-2 text-xs bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Admin
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}

@@ -2,173 +2,76 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  images: string[];
-  specifications?: { [key: string]: string | undefined };
-}
+import { useTranslation } from 'react-i18next';
+import { getProductImages } from '../config/imageConfig';
 
 const ProductCategory: React.FC = () => {
   const { category } = useParams<{ category: string }>();
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { t } = useTranslation();
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Sample product data - in production, this would come from your backend
-  const getCategoryData = () => {
-    switch (category) {
-      case 'plywood':
-        return {
-          title: 'Plywood',
-          description: 'Premium quality plywood available in various thicknesses and wood types',
-          products: [
-            {
-              id: 'premium-plywood',
-              title: 'Premium Plywood',
-              description: 'High-grade plywood for furniture and construction',
-              images: ['/api/images/plywood-1.jpg', '/api/images/plywood-2.jpg'],
-              specifications: {
-                'Thickness': '1mm - 30mm',
-                'Sizes': 'Standard and custom',
-                'Wood Types': 'Okoume, Acajou, Ayous, Sapele',
-              },
-            },
-            {
-              id: 'marine-plywood',
-              title: 'Marine Plywood',
-              description: 'Water-resistant plywood for marine applications',
-              images: ['/api/images/marine-1.jpg', '/api/images/marine-2.jpg'],
-              specifications: {
-                'Thickness': '6mm - 25mm',
-                'Water Resistance': 'High',
-                'Applications': 'Boats, outdoor furniture',
-              },
-            },
-            {
-              id: 'structural-plywood',
-              title: 'Structural Plywood',
-              description: 'Strong plywood for construction use',
-              images: ['/api/images/structural-1.jpg', '/api/images/structural-2.jpg'],
-              specifications: {
-                'Thickness': '9mm - 30mm',
-                'Strength': 'High load-bearing capacity',
-                'Applications': 'Construction, flooring',
-              },
-            },
-          ],
-        };
-      case 'melamine':
-        return {
-          title: 'Prefinished Melamine',
-          description: 'Wide range of colors and finishes with custom options available',
-          products: [
-            {
-              id: 'white-melamine',
-              title: 'White Melamine',
-              description: 'Classic white finish for modern interiors',
-              images: ['/api/images/melamine-white-1.jpg'],
-              specifications: {
-                'Finish': 'Smooth matte',
-                'Thickness': 'Various',
-                'Custom Colors': 'Available on request',
-              },
-            },
-            {
-              id: 'wood-grain-melamine',
-              title: 'Wood Grain Melamine',
-              description: 'Natural wood appearance with melamine durability',
-              images: ['/api/images/melamine-wood-1.jpg'],
-              specifications: {
-                'Patterns': 'Oak, Walnut, Cherry, and more',
-                'Texture': 'Embossed wood grain',
-              },
-            },
-          ],
-        };
-      case 'veneer':
-        return {
-          title: 'Wood Veneer',
-          description: 'Natural wood veneers in various species and thicknesses',
-          products: [
-            {
-              id: 'okoume-veneer',
-              title: 'Okoume Veneer',
-              description: 'Light, uniform grain veneer',
-              images: ['/api/images/veneer-okoume-1.jpg'],
-              specifications: {
-                'Thickness': '0.3mm - 3mm',
-                'Grade': 'A, B, C available',
-              },
-            },
-            {
-              id: 'sapele-veneer',
-              title: 'Sapele Veneer',
-              description: 'Rich mahogany-like appearance',
-              images: ['/api/images/veneer-sapele-1.jpg'],
-              specifications: {
-                'Thickness': '0.3mm - 3mm',
-                'Pattern': 'Straight and figured grain',
-              },
-            },
-          ],
-        };
-      case 'logs':
-        return {
-          title: 'Raw Wood Logs',
-          description: 'Sustainably sourced raw logs from Cameroon forests',
-          products: [
-            {
-              id: 'raw-logs',
-              title: 'Various Species',
-              description: 'High-quality logs for processing',
-              images: ['/api/images/logs-1.jpg'],
-              specifications: {
-                'Species': 'Okoume, Sapele, Ayous, and more',
-                'Length': 'Standard and custom cuts',
-                'Certification': 'Sustainable forestry certified',
-              },
-            },
-          ],
-        };
-      default:
-        return null;
-    }
-  };
+  // Get images from config
+  const productImages = getProductImages(category || '');
 
-  const categoryData = getCategoryData();
-
-  if (!categoryData) {
+  if (!productImages) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl text-gray-600">Category not found</h2>
+        <h2 className="text-2xl text-gray-600">{t('category_not_found') || 'Category not found'}</h2>
         <Link to="/products" className="text-forest-green hover:underline mt-4 inline-block">
-          Back to Products
+          {t('back_to_products') || 'Back to Products'}
         </Link>
       </div>
     );
   }
 
+  const getCategoryTitle = () => {
+    switch (category) {
+      case 'plywood':
+        return t('plywood');
+      case 'melamine-plywood':
+        return t('melamine_plywood');
+      case 'veneer':
+        return t('veneer');
+      case 'logs':
+        return t('logs');
+      default:
+        return category;
+    }
+  };
+
+  const getCategoryDescription = () => {
+    switch (category) {
+      case 'plywood':
+        return t('plywood_desc');
+      case 'melamine-plywood':
+        return t('melamine_plywood_desc');
+      case 'veneer':
+        return t('veneer_desc');
+      case 'logs':
+        return t('logs_desc');
+      default:
+        return '';
+    }
+  };
+
   const handleNextImage = () => {
-    if (selectedProduct) {
-      setCurrentImageIndex((prev) =>
-        prev === selectedProduct.images.length - 1 ? 0 : prev + 1
+    if (selectedImageIndex !== null) {
+      setSelectedImageIndex(
+        selectedImageIndex === productImages.galleryImages.length - 1 ? 0 : selectedImageIndex + 1
       );
     }
   };
 
   const handlePrevImage = () => {
-    if (selectedProduct) {
-      setCurrentImageIndex((prev) =>
-        prev === 0 ? selectedProduct.images.length - 1 : prev - 1
+    if (selectedImageIndex !== null) {
+      setSelectedImageIndex(
+        selectedImageIndex === 0 ? productImages.galleryImages.length - 1 : selectedImageIndex - 1
       );
     }
   };
 
   const closeGallery = () => {
-    setSelectedProduct(null);
-    setCurrentImageIndex(0);
+    setSelectedImageIndex(null);
   };
 
   return (
@@ -180,158 +83,245 @@ const ProductCategory: React.FC = () => {
       >
         <Link
           to="/products"
-          className="inline-flex items-center text-forest-green hover:text-forest-green mb-4"
+          className="inline-flex items-center text-forest-green hover:text-dark-green mb-4"
         >
           <ChevronLeftIcon className="w-4 h-4 mr-1" />
-          Back to Products
+          {t('back_to_products') || 'Back to Products'}
         </Link>
         
         <h1 className="text-4xl font-bold text-forest-green mb-4">
-          {categoryData.title}
+          {getCategoryTitle()}
         </h1>
         <p className="text-xl text-gray-700 mb-8">
-          {categoryData.description}
+          {getCategoryDescription()}
         </p>
       </motion.div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categoryData.products.map((product, index) => (
-          <motion.div
-            key={product.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-          >
-            <div
-              className="h-48 bg-gradient-to-br from-wood-light to-wood-medium cursor-pointer relative group"
-              onClick={() => {
-                setSelectedProduct(product);
-                setCurrentImageIndex(0);
-              }}
+      {/* Main Product Image */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white rounded-xl shadow-lg overflow-hidden"
+      >
+        <div className="relative h-96">
+          <img
+            src={productImages.mainImage}
+            alt={getCategoryTitle()}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2RkZCIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjIwMCIgeT0iMTUwIiBzdHlsZT0iZmlsbDojOTk5O2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjIwcHg7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZiI+SW1hZ2UgUGxhY2Vob2xkZXI8L3RleHQ+PC9zdmc+';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <h2 className="text-3xl font-bold text-white drop-shadow-lg mb-2">
+              {getCategoryTitle()}
+            </h2>
+            <p className="text-white text-lg drop-shadow">
+              {t('gallery_images_count', { count: productImages.galleryImages.length }) || 
+               `${productImages.galleryImages.length} images available`}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Gallery Grid */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-forest-green">
+          {t('product_gallery') || 'Product Gallery'}
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {productImages.galleryImages.map((image, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              whileHover={{ scale: 1.05 }}
+              className="relative aspect-square overflow-hidden rounded-lg shadow-md cursor-pointer group"
+              onClick={() => setSelectedImageIndex(index)}
             >
-              <div className="absolute inset-0 wood-texture opacity-30"></div>
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Click to view gallery
+              <img
+                src={image}
+                alt={`${getCategoryTitle()} ${index + 1}`}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                loading="lazy"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.parentElement!.classList.add('bg-gradient-to-br', 'from-wood-light', 'to-wood-medium');
+                }}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-semibold">
+                  {t('click_to_view') || 'Click to view'}
                 </span>
               </div>
-            </div>
-            
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-forest-green mb-2">
-                {product.title}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {product.description}
-              </p>
-              
-              {product.specifications && (
-                <div className="space-y-2">
-                  {Object.entries(product.specifications)
-                    .filter(([_, value]) => value !== undefined)
-                    .map(([key, value]) => (
-                      <div key={key} className="text-sm">
-                        <span className="font-semibold text-gray-700">{key}:</span>{' '}
-                        <span className="text-gray-600">{value}</span>
-                      </div>
-                    ))}
-                </div>
-              )}
-              
-              <button
-                onClick={() => {
-                  setSelectedProduct(product);
-                  setCurrentImageIndex(0);
-                }}
-                className="mt-4 px-4 py-2 bg-dark-green text-white rounded-lg hover:bg-forest-green transition-colors duration-300"
-              >
-                View Gallery
-              </button>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      {/* Image Gallery Modal */}
+      {/* Product Information */}
+      <div className="bg-white rounded-xl shadow-lg p-8">
+        <h3 className="text-2xl font-bold text-forest-green mb-4">
+          {t('product_details') || 'Product Details'}
+        </h3>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-semibold text-lg mb-2">{t('specifications') || 'Specifications'}</h4>
+            {category === 'plywood' && (
+              <ul className="space-y-2 text-gray-700">
+                <li>• {t('thickness') || 'Thickness'}: 1mm - 30mm</li>
+                <li>• {t('wood_types') || 'Wood Types'}: Okoume, Acajou, Ayous, Sapele</li>
+                <li>• {t('grades') || 'Grades'}: Premium, Marine, Structural</li>
+                <li>• {t('sizes') || 'Sizes'}: Standard and custom</li>
+              </ul>
+            )}
+            {category === 'melamine-plywood' && (
+              <ul className="space-y-2 text-gray-700">
+                <li>• {t('base_material') || 'Base'}: High-quality plywood</li>
+                <li>• {t('surface') || 'Surface'}: Melamine laminate</li>
+                <li>• {t('patterns') || 'Patterns'}: Solid colors and wood grains</li>
+                <li>• {t('applications') || 'Applications'}: Furniture, cabinetry</li>
+              </ul>
+            )}
+            {category === 'veneer' && (
+              <ul className="space-y-2 text-gray-700">
+                <li>• {t('thickness') || 'Thickness'}: 0.3mm - 3mm</li>
+                <li>• {t('species') || 'Species'}: All Cameroon wood types</li>
+                <li>• {t('grades') || 'Grades'}: A, B, C available</li>
+                <li>• {t('cuts') || 'Cuts'}: Rotary, quarter, and flat cut</li>
+              </ul>
+            )}
+            {category === 'logs' && (
+              <ul className="space-y-2 text-gray-700">
+                <li>• {t('species') || 'Species'}: Various Cameroon hardwoods</li>
+                <li>• {t('certification') || 'Certification'}: Sustainable forestry</li>
+                <li>• {t('lengths') || 'Lengths'}: Standard and custom</li>
+                <li>• {t('quality') || 'Quality'}: Export grade</li>
+              </ul>
+            )}
+          </div>
+          <div>
+            <h4 className="font-semibold text-lg mb-2">{t('why_choose_this') || 'Why Choose This Product'}</h4>
+            <ul className="space-y-2 text-gray-700">
+              <li>✓ {t('quality_guaranteed') || 'Quality guaranteed'}</li>
+              <li>✓ {t('sample_available') || 'Samples available'}</li>
+              <li>✓ {t('custom_orders') || 'Custom orders accepted'}</li>
+              <li>✓ {t('bulk_discounts') || 'Bulk discounts available'}</li>
+              <li>✓ {t('fast_shipping') || 'Fast international shipping'}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact CTA */}
+      <div className="bg-gradient-to-r from-leaf-green to-forest-green rounded-xl p-8 text-white text-center">
+        <h3 className="text-2xl font-bold mb-4">
+          {t('interested_in_product') || 'Interested in this product?'}
+        </h3>
+        <p className="mb-6">
+          {t('contact_for_quote') || 'Contact us for samples, pricing, and custom orders'}
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link
+            to="/contact"
+            className="px-6 py-3 bg-white text-forest-green rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          >
+            {t('get_quote') || 'Get a Quote'}
+          </Link>
+          <a
+            href="https://wa.me/2376812111"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-forest-green transition-all"
+          >
+            {t('whatsapp_us') || 'WhatsApp Us'}
+          </a>
+        </div>
+      </div>
+
+      {/* Lightbox Gallery Modal */}
       <AnimatePresence>
-        {selectedProduct && (
+        {selectedImageIndex !== null && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4"
             onClick={closeGallery}
           >
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
-              className="relative max-w-4xl w-full"
+              className="relative max-w-6xl w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={closeGallery}
-                className="absolute -top-12 right-0 text-white hover:text-gray-300"
+                className="absolute -top-12 right-0 text-white hover:text-gray-300 z-10"
               >
-                <XMarkIcon className="w-8 h-8" />
+                <XMarkIcon className="w-10 h-10" />
               </button>
               
-              <div className="relative bg-white rounded-lg overflow-hidden">
-                <div className="aspect-w-16 aspect-h-9 bg-gray-100">
-                  <div className="flex items-center justify-center h-96">
-                    <img
-                      src={selectedProduct.images[currentImageIndex]}
-                      alt={selectedProduct.title}
-                      className="max-h-full max-w-full object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2RkZCIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjIwMCIgeT0iMTUwIiBzdHlsZT0iZmlsbDojOTk5O2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjIwcHg7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZiI+SW1hZ2UgUGxhY2Vob2xkZXI8L3RleHQ+PC9zdmc+';
-                      }}
-                    />
-                  </div>
-                </div>
+              <div className="relative">
+                <img
+                  src={productImages.galleryImages[selectedImageIndex]}
+                  alt={`${getCategoryTitle()} ${selectedImageIndex + 1}`}
+                  className="w-full h-auto max-h-[80vh] object-contain mx-auto"
+                />
                 
-                {selectedProduct.images.length > 1 && (
+                {productImages.galleryImages.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 rounded-full p-2 hover:bg-opacity-100"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur rounded-full p-3 transition-all"
                     >
-                      <ChevronLeftIcon className="w-6 h-6 text-forest-green" />
+                      <ChevronLeftIcon className="w-8 h-8 text-white" />
                     </button>
                     <button
                       onClick={handleNextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 rounded-full p-2 hover:bg-opacity-100"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur rounded-full p-3 transition-all"
                     >
-                      <ChevronRightIcon className="w-6 h-6 text-forest-green" />
+                      <ChevronRightIcon className="w-8 h-8 text-white" />
                     </button>
                   </>
                 )}
                 
-                <div className="p-4 bg-white">
-                  <h3 className="text-xl font-bold text-forest-green">
-                    {selectedProduct.title}
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    {selectedProduct.description}
-                  </p>
-                  {selectedProduct.images.length > 1 && (
-                    <div className="mt-4 flex justify-center space-x-2">
-                      {selectedProduct.images.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentImageIndex(index)}
-                          className={`w-2 h-2 rounded-full ${
-                            index === currentImageIndex
-                              ? 'bg-dark-green'
-                              : 'bg-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
+                {/* Image counter */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 backdrop-blur px-4 py-2 rounded-full">
+                  <span className="text-white text-sm">
+                    {selectedImageIndex + 1} / {productImages.galleryImages.length}
+                  </span>
                 </div>
               </div>
+              
+              {/* Thumbnail navigation */}
+              {productImages.galleryImages.length > 1 && (
+                <div className="mt-4 flex justify-center gap-2 overflow-x-auto pb-2">
+                  {productImages.galleryImages.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`flex-shrink-0 w-20 h-20 rounded overflow-hidden border-2 transition-all ${
+                        index === selectedImageIndex
+                          ? 'border-white opacity-100'
+                          : 'border-transparent opacity-50 hover:opacity-75'
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
