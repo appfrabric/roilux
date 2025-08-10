@@ -77,7 +77,7 @@ class VirtualTour(Base):
     preferred_time = Column(String(50), nullable=False)
     message = Column(Text, nullable=True)
     language = Column(String(5), default="en", nullable=False)
-    status = Column(Enum("pending", "confirmed", "completed", "cancelled", name="tour_status"), default="pending")
+    status = Column(Enum("pending", "confirmed", "completed", "cancelled", "archived", name="tour_status"), default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

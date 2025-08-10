@@ -280,10 +280,48 @@ def book_virtual_tour(tour_request: VirtualTourRequest, db: Session = Depends(ge
     }
 
 @app.get("/api/virtual-tours")
-def get_virtual_tours(db: Session = Depends(get_db)):
-    """Get all virtual tour requests (admin endpoint)"""
-    tours = db.query(VirtualTour).all()
-    return {"tours": tours, "total": len(tours)}
+def get_virtual_tours(
+    page: int = 1,
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
+    """Get virtual tour requests with pagination (admin endpoint)"""
+    offset = (page - 1) * limit
+    
+    # Query with sorting: non-archived first, then by created_at desc
+    query = db.query(VirtualTour)
+    
+    # Get total count
+    total = query.count()
+    
+    # Sort: non-archived first, then by date
+    # SQLite doesn't handle boolean sorting directly, so we use CASE
+    from sqlalchemy import case
+    tours = query.order_by(
+        case((VirtualTour.status == 'archived', 1), else_=0),  # 0 for non-archived, 1 for archived
+        VirtualTour.created_at.desc()
+    ).offset(offset).limit(limit).all()
+    
+    return {
+        "tours": tours,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "pages": (total + limit - 1) // limit
+    }
+
+@app.patch("/api/virtual-tours/{tour_id}/archive")
+def archive_virtual_tour(tour_id: int, db: Session = Depends(get_db)):
+    """Archive a virtual tour request"""
+    tour = db.query(VirtualTour).filter(VirtualTour.id == tour_id).first()
+    if not tour:
+        raise HTTPException(status_code=404, detail="Tour not found")
+    
+    tour.status = "archived"
+    tour.updated_at = datetime.now()
+    db.commit()
+    
+    return {"success": True, "message": "Tour request archived successfully"}
 
 # Contact form
 @app.post("/api/contact")
@@ -422,10 +460,48 @@ def get_orders(db: Session = Depends(get_db)):
 
 # Get contact messages (admin endpoint)
 @app.get("/api/contact-messages")
-def get_contact_messages(db: Session = Depends(get_db)):
-    """Get all contact messages (admin endpoint)"""
-    messages = db.query(ContactMessage).all()
-    return {"messages": messages, "total": len(messages)}
+def get_contact_messages(
+    page: int = 1,
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
+    """Get contact messages with pagination (admin endpoint)"""
+    offset = (page - 1) * limit
+    
+    # Query with sorting: unarchived first, then by created_at desc
+    query = db.query(ContactMessage)
+    
+    # Get total count
+    total = query.count()
+    
+    # Sort: non-archived first, then by date
+    # SQLite doesn't handle boolean sorting directly, so we use CASE
+    from sqlalchemy import case
+    messages = query.order_by(
+        case((ContactMessage.status == 'archived', 1), else_=0),  # 0 for non-archived, 1 for archived
+        ContactMessage.created_at.desc()
+    ).offset(offset).limit(limit).all()
+    
+    return {
+        "messages": messages,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "pages": (total + limit - 1) // limit
+    }
+
+@app.patch("/api/contact-messages/{message_id}/archive")
+def archive_contact_message(message_id: int, db: Session = Depends(get_db)):
+    """Archive a contact message"""
+    message = db.query(ContactMessage).filter(ContactMessage.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    message.status = "archived"
+    message.updated_at = datetime.now()
+    db.commit()
+    
+    return {"success": True, "message": "Message archived successfully"}
 
 # Image upload endpoint
 @app.post("/api/upload/image")

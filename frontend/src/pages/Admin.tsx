@@ -9,8 +9,10 @@ import {
   BuildingOfficeIcon,
   ArrowRightOnRectangleIcon,
   EyeIcon,
-  TrashIcon,
-  UsersIcon
+  ArchiveBoxIcon,
+  UsersIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import UserManagement from './UserManagement';
 
@@ -23,6 +25,7 @@ interface ContactRequest {
   subject: string;
   message: string;
   created_at: string;
+  status: string;
   type: 'contact';
 }
 
@@ -36,7 +39,15 @@ interface TourRequest {
   preferred_time: string;
   message?: string;
   created_at: string;
+  status: string;
   type: 'tour';
+}
+
+interface PaginationInfo {
+  page: number;
+  pages: number;
+  total: number;
+  limit: number;
 }
 
 type Request = ContactRequest | TourRequest;
@@ -52,23 +63,33 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [activeSection, setActiveSection] = useState<'requests' | 'users'>('requests');
   const [loading, setLoading] = useState(true);
+  const [contactPagination, setContactPagination] = useState<PaginationInfo>({ page: 1, pages: 1, total: 0, limit: 20 });
+  const [tourPagination, setTourPagination] = useState<PaginationInfo>({ page: 1, pages: 1, total: 0, limit: 20 });
+  const [currentContactPage, setCurrentContactPage] = useState(1);
+  const [currentTourPage, setCurrentTourPage] = useState(1);
 
   // Load data from backend APIs
   useEffect(() => {
     loadData();
-  }, []);
+  }, [currentContactPage, currentTourPage]);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      // Load contact messages
-      const contactResponse = await fetch('/api/contact-messages');
-      const tourResponse = await fetch('/api/virtual-tours');
+      // Load contact messages with pagination
+      const contactResponse = await fetch(`/api/contact-messages?page=${currentContactPage}&limit=20`);
+      const tourResponse = await fetch(`/api/virtual-tours?page=${currentTourPage}&limit=20`);
       
       const allRequests: Request[] = [];
       
       if (contactResponse.ok) {
         const contactData = await contactResponse.json();
+        setContactPagination({
+          page: contactData.page,
+          pages: contactData.pages,
+          total: contactData.total,
+          limit: contactData.limit
+        });
         const contactRequests: ContactRequest[] = contactData.messages.map((msg: any) => ({
           id: msg.id.toString(),
           name: msg.name,
@@ -78,6 +99,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
           subject: msg.subject,
           message: msg.message,
           created_at: msg.created_at,
+          status: msg.status,
           type: 'contact'
         }));
         allRequests.push(...contactRequests);
@@ -85,6 +107,12 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
       
       if (tourResponse.ok) {
         const tourData = await tourResponse.json();
+        setTourPagination({
+          page: tourData.page,
+          pages: tourData.pages,
+          total: tourData.total,
+          limit: tourData.limit
+        });
         const tourRequests: TourRequest[] = tourData.tours.map((tour: any) => ({
           id: tour.id.toString(),
           name: tour.name,
@@ -95,13 +123,12 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
           preferred_time: tour.preferred_time,
           message: tour.message,
           created_at: tour.created_at,
+          status: tour.status,
           type: 'tour'
         }));
         allRequests.push(...tourRequests);
       }
       
-      // Sort by creation date (newest first)
-      allRequests.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setRequests(allRequests);
     } catch (error) {
       console.error('Failed to load requests:', error);
@@ -122,12 +149,30 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
     });
   };
 
-  const deleteRequest = (id: string) => {
-    // In production, this would call a delete API endpoint
-    console.warn('Delete API not implemented yet');
-    setRequests(prev => prev.filter(req => req.id !== id));
-    if (selectedRequest?.id === id) {
-      setSelectedRequest(null);
+  const archiveRequest = async (id: string, type: 'contact' | 'tour') => {
+    try {
+      const endpoint = type === 'contact' 
+        ? `/api/contact-messages/${id}/archive`
+        : `/api/virtual-tours/${id}/archive`;
+      
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Reload data to reflect changes
+        await loadData();
+        if (selectedRequest?.id === id) {
+          setSelectedRequest(null);
+        }
+      } else {
+        console.error('Failed to archive request');
+      }
+    } catch (error) {
+      console.error('Error archiving request:', error);
     }
   };
 
@@ -267,12 +312,51 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                               </p>
                             )}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {formatDate(request.created_at)}
+                          <div className="text-right">
+                            <div className="text-sm text-gray-500">
+                              {formatDate(request.created_at)}
+                            </div>
+                            {request.status === 'archived' && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 mt-1">
+                                <ArchiveBoxIcon className="h-3 w-3 mr-1" />
+                                Archived
+                              </span>
+                            )}
                           </div>
                         </div>
                       </motion.div>
                     ))}
+                  </div>
+                )}
+                
+                {/* Pagination Controls */}
+                {!loading && filteredRequests.length > 0 && (
+                  <div className="flex items-center justify-between px-6 py-4 border-t">
+                    <div className="text-sm text-gray-600">
+                      Showing {selectedTab === 'contact' ? 
+                        `${(currentContactPage - 1) * 20 + 1}-${Math.min(currentContactPage * 20, contactPagination.total)} of ${contactPagination.total}` :
+                        `${(currentTourPage - 1) * 20 + 1}-${Math.min(currentTourPage * 20, tourPagination.total)} of ${tourPagination.total}`
+                      } {selectedTab === 'contact' ? 'messages' : 'tour requests'}
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => selectedTab === 'contact' ? setCurrentContactPage(prev => Math.max(1, prev - 1)) : setCurrentTourPage(prev => Math.max(1, prev - 1))}
+                        disabled={selectedTab === 'contact' ? currentContactPage === 1 : currentTourPage === 1}
+                        className="px-3 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeftIcon className="h-4 w-4" />
+                      </button>
+                      <span className="px-3 py-1 text-sm">
+                        Page {selectedTab === 'contact' ? currentContactPage : currentTourPage} of {selectedTab === 'contact' ? contactPagination.pages : tourPagination.pages}
+                      </span>
+                      <button
+                        onClick={() => selectedTab === 'contact' ? setCurrentContactPage(prev => Math.min(contactPagination.pages, prev + 1)) : setCurrentTourPage(prev => Math.min(tourPagination.pages, prev + 1))}
+                        disabled={selectedTab === 'contact' ? currentContactPage === contactPagination.pages : currentTourPage === tourPagination.pages}
+                        className="px-3 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRightIcon className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -355,11 +439,12 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                     {/* Actions */}
                     <div className="flex space-x-3">
                       <button
-                        onClick={() => deleteRequest(selectedRequest.id)}
-                        className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
+                        onClick={() => archiveRequest(selectedRequest.id, selectedRequest.type)}
+                        className="flex-1 bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center"
+                        disabled={selectedRequest.status === 'archived'}
                       >
-                        <TrashIcon className="h-4 w-4 mr-2" />
-                        {t('delete') || 'Delete'}
+                        <ArchiveBoxIcon className="h-4 w-4 mr-2" />
+                        {selectedRequest.status === 'archived' ? (t('archived') || 'Archived') : (t('archive') || 'Archive')}
                       </button>
                     </div>
                   </div>
