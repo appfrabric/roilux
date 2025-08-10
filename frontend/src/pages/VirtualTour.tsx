@@ -14,19 +14,83 @@ const VirtualTour: React.FC = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Full name is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email address is required');
+      return false;
+    }
+    if (!formData.phone.trim()) {
+      setError('Phone number is required');
+      return false;
+    }
+    if (!formData.preferredDate) {
+      setError('Preferred date is required');
+      return false;
+    }
+    if (!formData.preferredTime) {
+      setError('Preferred time is required');
+      return false;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, this would send the data to your backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
+    setError(null);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/virtual-tour', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to submit tour request');
+      }
+
+      const result = await response.json();
+      console.log('Tour request submitted successfully:', result);
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting tour request:', error);
+      setError(error instanceof Error ? error.message : 'Failed to submit tour request. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const timeSlots = [
@@ -219,12 +283,13 @@ const VirtualTour: React.FC = () => {
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
+                  required
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-green focus:border-transparent"
@@ -283,11 +348,22 @@ const VirtualTour: React.FC = () => {
                 />
               </div>
 
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-dark-green text-white rounded-lg font-semibold hover:bg-forest-green transition-colors duration-300"
+                disabled={isLoading}
+                className={`w-full px-6 py-3 rounded-lg font-semibold transition-colors duration-300 ${
+                  isLoading 
+                    ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
+                    : 'bg-dark-green text-white hover:bg-forest-green'
+                }`}
               >
-                Schedule Virtual Tour
+                {isLoading ? 'Submitting...' : 'Schedule Virtual Tour'}
               </button>
             </div>
           </form>

@@ -22,18 +22,79 @@ const Contact: React.FC = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Full name is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email address is required');
+      return false;
+    }
+    if (!formData.subject.trim()) {
+      setError('Subject is required');
+      return false;
+    }
+    if (!formData.message.trim()) {
+      setError('Message is required');
+      return false;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', formData);
-    setIsSubmitted(true);
+    setError(null);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to send message');
+      }
+
+      const result = await response.json();
+      console.log('Contact message sent successfully:', result);
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error sending contact message:', error);
+      setError(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
@@ -345,11 +406,22 @@ const Contact: React.FC = () => {
                 />
               </div>
 
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-forest-green text-white rounded-lg font-semibold hover:bg-dark-green transition-colors duration-300"
+                disabled={isLoading}
+                className={`w-full px-6 py-3 rounded-lg font-semibold transition-colors duration-300 ${
+                  isLoading 
+                    ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
+                    : 'bg-forest-green text-white hover:bg-dark-green'
+                }`}
               >
-{t('send_message')}
+                {isLoading ? 'Sending...' : t('send_message')}
               </button>
             </div>
           </form>
