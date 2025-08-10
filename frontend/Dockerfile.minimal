@@ -1,0 +1,45 @@
+# Minimal Dockerfile to ensure no dev server interference
+FROM node:18-alpine as build
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Force production build
+ENV NODE_ENV=production
+ENV REACT_APP_NODE_ENV=production
+ENV GENERATE_SOURCEMAP=false
+ENV INLINE_RUNTIME_CHUNK=false
+
+# Build the app
+RUN npm run build
+
+# Production stage with minimal nginx
+FROM nginx:alpine
+
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy our minimal nginx config
+COPY nginx-direct.conf /etc/nginx/conf.d/default.conf
+
+# Copy the built app
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Create a simple startup script
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'echo "Starting nginx with minimal config..."' >> /start.sh && \
+    echo 'nginx -t' >> /start.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /start.sh && \
+    chmod +x /start.sh
+
+EXPOSE 80
+
+CMD ["/start.sh"]

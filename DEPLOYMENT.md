@@ -63,13 +63,22 @@ ufw reload
 
 If you see "Invalid Host header" error, try these solutions:
 
-### Solution 1: Use Alternative Nginx Config
+### Solution 1: Use Minimal Configuration (RECOMMENDED)
+```bash
+# Stop current containers
+docker-compose down
+
+# Use the minimal configuration that bypasses webpack dev server completely
+docker-compose -f docker-compose.minimal.yml up -d --build
+```
+
+### Solution 2: Use Alternative Nginx Config
 ```bash
 # Stop containers
 docker-compose -f docker-compose.prod.yml down
 
-# Replace nginx config with alternative version
-cp frontend/nginx-alt.conf frontend/nginx.conf
+# Replace nginx config with direct version
+cp frontend/nginx-direct.conf frontend/nginx.conf
 
 # Rebuild and start
 docker-compose -f docker-compose.prod.yml up -d --build

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: roilux-backend-minimal
+    volumes:
+      - ./backend/uploads:/app/uploads
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENV=production
+    networks:
+      - roilux-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.minimal
+    container_name: roilux-frontend-minimal
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - roilux-network
+    restart: unless-stopped
+
+networks:
+  roilux-network:
+    driver: bridge
