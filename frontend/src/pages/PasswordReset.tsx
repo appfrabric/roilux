@@ -27,14 +27,15 @@ const PasswordReset: React.FC = () => {
     if (resetToken) {
       setToken(resetToken);
       // Validate the token
-      const isValid = validateResetToken(resetToken);
-      setTokenValid(isValid);
-      if (!isValid) {
-        setMessage({
-          type: 'error',
-          text: t('reset_token_expired') || 'This password reset link has expired or is invalid. Please request a new password reset.'
-        });
-      }
+      validateResetToken(resetToken).then(isValid => {
+        setTokenValid(isValid);
+        if (!isValid) {
+          setMessage({
+            type: 'error',
+            text: t('reset_token_expired') || 'This password reset link has expired or is invalid. Please request a new password reset.'
+          });
+        }
+      });
     } else {
       // No token in URL, redirect to forgot password page
       navigate('/forgot-password');
@@ -65,7 +66,7 @@ const PasswordReset: React.FC = () => {
       return;
     }
 
-    const success = resetPassword(token, newPassword);
+    const success = await resetPassword(token, newPassword);
     
     if (success) {
       setMessage({ 

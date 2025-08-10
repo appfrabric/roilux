@@ -20,9 +20,9 @@ interface AuthContextType {
   adminChangePassword: (username: string, newPassword: string) => Promise<boolean>;
   registerUser: (userData: { username: string; email: string; password: string; role: UserRole }) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
-  sendPasswordReset: (email: string) => boolean;
-  resetPassword: (token: string, newPassword: string) => boolean;
-  validateResetToken: (token: string) => boolean;
+  sendPasswordReset: (email: string) => Promise<boolean>;
+  resetPassword: (token: string, newPassword: string) => Promise<boolean>;
+  validateResetToken: (token: string) => Promise<boolean>;
   isAuthenticated: boolean;
   loadUsers: () => Promise<void>;
 }
@@ -176,48 +176,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return false;
   };
 
-  // Keep password reset functionality as localStorage-based for now
-  // In production, this would integrate with email service
-  const sendPasswordReset = (email: string) => {
-    // For demo, we'll just store a reset token
-    const resetToken = Math.random().toString(36).substr(2, 9);
-    const resetTokens = JSON.parse(localStorage.getItem('resetTokens') || '{}');
-    resetTokens[resetToken] = {
-      email: email,
-      expires: Date.now() + 1800000 // 30 minutes (30 * 60 * 1000)
-    };
-    localStorage.setItem('resetTokens', JSON.stringify(resetTokens));
-    
-    // For demo purposes, show the reset link in console
-    console.log(`Password reset link: ${window.location.origin}/reset-password?token=${resetToken}`);
-    
-    return true;
-  };
+  const sendPasswordReset = async (email: string) => {
+    try {
+      const response = await fetch('/api/auth/request-password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
-  const validateResetToken = (token: string) => {
-    const resetTokens = JSON.parse(localStorage.getItem('resetTokens') || '{}');
-    const tokenData = resetTokens[token];
-    
-    // Check if token exists and hasn't expired
-    return tokenData && tokenData.expires > Date.now();
-  };
-
-  const resetPassword = (token: string, newPassword: string) => {
-    const resetTokens = JSON.parse(localStorage.getItem('resetTokens') || '{}');
-    const tokenData = resetTokens[token];
-    
-    if (!tokenData || tokenData.expires < Date.now()) {
-      return false;
+      if (response.ok) {
+        return true;
+      }
+    } catch (error) {
+      console.error('Password reset request failed:', error);
     }
-    
-    // In production, this would call backend API to reset password
-    console.warn('Password reset integration with backend not fully implemented');
-    
-    // Remove used token
-    delete resetTokens[token];
-    localStorage.setItem('resetTokens', JSON.stringify(resetTokens));
-    
-    return true;
+    return false;
+  };
+
+  const validateResetToken = async (token: string) => {
+    try {
+      const response = await fetch('/api/auth/validate-reset-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.valid;
+      }
+    } catch (error) {
+      console.error('Token validation failed:', error);
+    }
+    return false;
+  };
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, new_password: newPassword }),
+      });
+
+      if (response.ok) {
+        return true;
+      }
+    } catch (error) {
+      console.error('Password reset failed:', error);
+    }
+    return false;
   };
 
   const isAuthenticated = user !== null;
