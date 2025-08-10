@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export type UserRole = 'admin' | 'processor';
 
@@ -14,16 +14,17 @@ interface User {
 interface AuthContextType {
   user: User | null;
   users: User[];
-  login: (credentials: { username: string; password: string }) => boolean;
+  login: (credentials: { username: string; password: string }) => Promise<boolean>;
   logout: () => void;
-  changePassword: (oldPassword: string, newPassword: string) => boolean;
-  adminChangePassword: (userId: string, newPassword: string) => boolean;
-  registerUser: (userData: { username: string; email: string; password: string; role: UserRole }) => boolean;
-  deleteUser: (userId: string) => boolean;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
+  adminChangePassword: (username: string, newPassword: string) => Promise<boolean>;
+  registerUser: (userData: { username: string; email: string; password: string; role: UserRole }) => Promise<boolean>;
+  deleteUser: (userId: string) => Promise<boolean>;
   sendPasswordReset: (email: string) => boolean;
   resetPassword: (token: string, newPassword: string) => boolean;
   validateResetToken: (token: string) => boolean;
   isAuthenticated: boolean;
+  loadUsers: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,34 +42,6 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // Initialize with default admin user and sample users
-  const [users, setUsers] = useState<User[]>(() => {
-    const storedUsers = localStorage.getItem('systemUsers');
-    if (storedUsers) {
-      return JSON.parse(storedUsers);
-    }
-    
-    const defaultUsers: User[] = [
-      {
-        id: '1',
-        username: 'admin',
-        email: 'roilux.woods@gmail.com',
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: '2',
-        username: 'processor1',
-        email: 'processor@roilux.com',
-        role: 'processor',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-      }
-    ];
-    
-    localStorage.setItem('systemUsers', JSON.stringify(defaultUsers));
-    return defaultUsers;
-  });
-
   const [user, setUser] = useState<User | null>(() => {
     // Check localStorage for existing session
     const storedUser = localStorage.getItem('currentUser');
@@ -87,49 +60,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return null;
   });
 
-  // Store passwords separately (in production, these would be hashed)
-  const [passwords] = useState(() => {
-    const storedPasswords = localStorage.getItem('userPasswords');
-    if (storedPasswords) {
-      return JSON.parse(storedPasswords);
+  const [users, setUsers] = useState<User[]>([]);
+
+  // Load users from backend API
+  const loadUsers = async () => {
+    try {
+      const response = await fetch('/api/auth/users');
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error);
     }
-    
-    const defaultPasswords = {
-      '1': 'roilux2024',    // admin
-      '2': 'processor123'   // processor1
-    };
-    
-    localStorage.setItem('userPasswords', JSON.stringify(defaultPasswords));
-    return defaultPasswords;
-  });
-
-  const updatePasswords = (newPasswords: Record<string, string>) => {
-    localStorage.setItem('userPasswords', JSON.stringify(newPasswords));
   };
 
-  const updateUsers = (newUsers: User[]) => {
-    setUsers(newUsers);
-    localStorage.setItem('systemUsers', JSON.stringify(newUsers));
-  };
+  // Load users when component mounts
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-  const login = (credentials: { username: string; password: string }) => {
-    const foundUser = users.find(u => u.username === credentials.username);
-    if (foundUser && passwords[foundUser.id] === credentials.password) {
-      const userWithLastLogin = {
-        ...foundUser,
-        lastLogin: new Date().toISOString()
-      };
-      
-      setUser(userWithLastLogin);
-      localStorage.setItem('currentUser', JSON.stringify(userWithLastLogin));
-      
-      // Update user's last login in users array
-      const updatedUsers = users.map(u => 
-        u.id === foundUser.id ? userWithLastLogin : u
-      );
-      updateUsers(updatedUsers);
-      
-      return true;
+  const login = async (credentials: { username: string; password: string }) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.user);
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          await loadUsers(); // Refresh users list
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
     }
     return false;
   };
@@ -137,82 +108,82 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('currentUser');
+    // Redirect to home page
+    window.location.href = '/';
   };
 
-  const changePassword = (oldPassword: string, newPassword: string) => {
-    if (!user || passwords[user.id] !== oldPassword) {
-      return false;
-    }
-    
-    const newPasswords = { ...passwords, [user.id]: newPassword };
-    updatePasswords(newPasswords);
-    return true;
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    // For regular users, we don't have current password validation in backend yet
+    // This would need to be implemented if needed
+    console.warn('Regular user password change not implemented with current password validation');
+    return false;
   };
 
-  const adminChangePassword = (userId: string, newPassword: string) => {
+  const adminChangePassword = async (username: string, newPassword: string) => {
     // Only admins can use this function
     if (!user || user.role !== 'admin') {
       return false;
     }
-    
-    // Check if target user exists
-    if (!users.find(u => u.id === userId)) {
-      return false;
+
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          new_password: newPassword
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.success;
+      }
+    } catch (error) {
+      console.error('Password change failed:', error);
     }
-    
-    const newPasswords = { ...passwords, [userId]: newPassword };
-    updatePasswords(newPasswords);
-    return true;
+    return false;
   };
 
-  const registerUser = (userData: { username: string; email: string; password: string; role: UserRole }) => {
-    // Check if user already exists
-    if (users.some(u => u.username === userData.username || u.email === userData.email)) {
-      return false;
+  const registerUser = async (userData: { username: string; email: string; password: string; role: UserRole }) => {
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          await loadUsers(); // Refresh users list
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('User registration failed:', error);
     }
-    
-    const newUser: User = {
-      id: Date.now().toString(),
-      username: userData.username,
-      email: userData.email,
-      role: userData.role,
-      createdAt: new Date().toISOString(),
-    };
-    
-    const newUsers = [...users, newUser];
-    const newPasswords = { ...passwords, [newUser.id]: userData.password };
-    
-    updateUsers(newUsers);
-    updatePasswords(newPasswords);
-    
-    return true;
+    return false;
   };
 
-  const deleteUser = (userId: string) => {
-    if (userId === '1') return false; // Can't delete main admin
-    if (user?.id === userId) return false; // Can't delete self
-    
-    const newUsers = users.filter(u => u.id !== userId);
-    const newPasswords = { ...passwords };
-    delete newPasswords[userId];
-    
-    updateUsers(newUsers);
-    updatePasswords(newPasswords);
-    
-    return true;
+  const deleteUser = async (userId: string) => {
+    // This endpoint doesn't exist in backend yet, would need to be implemented
+    console.warn('User deletion endpoint not implemented in backend');
+    return false;
   };
 
+  // Keep password reset functionality as localStorage-based for now
+  // In production, this would integrate with email service
   const sendPasswordReset = (email: string) => {
-    const foundUser = users.find(u => u.email === email);
-    if (!foundUser) return false;
-    
-    // In production, this would send an actual email
     // For demo, we'll just store a reset token
     const resetToken = Math.random().toString(36).substr(2, 9);
     const resetTokens = JSON.parse(localStorage.getItem('resetTokens') || '{}');
     resetTokens[resetToken] = {
-      userId: foundUser.id,
-      email: foundUser.email,
+      email: email,
       expires: Date.now() + 1800000 // 30 minutes (30 * 60 * 1000)
     };
     localStorage.setItem('resetTokens', JSON.stringify(resetTokens));
@@ -239,8 +210,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false;
     }
     
-    const newPasswords = { ...passwords, [tokenData.userId]: newPassword };
-    updatePasswords(newPasswords);
+    // In production, this would call backend API to reset password
+    console.warn('Password reset integration with backend not fully implemented');
     
     // Remove used token
     delete resetTokens[token];
@@ -264,6 +235,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resetPassword,
     validateResetToken,
     isAuthenticated,
+    loadUsers,
   };
 
   return (

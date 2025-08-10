@@ -38,7 +38,7 @@ const UserManagement: React.FC = () => {
 
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
 
@@ -52,7 +52,7 @@ const UserManagement: React.FC = () => {
       return;
     }
 
-    const success = registerUser({
+    const success = await registerUser({
       username: registerForm.username,
       email: registerForm.email,
       password: registerForm.password,
@@ -73,7 +73,7 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
 
@@ -92,7 +92,13 @@ const UserManagement: React.FC = () => {
       return;
     }
 
-    const success = adminChangePassword(passwordForm.selectedUserId, passwordForm.newPassword);
+    const selectedUser = users.find(u => u.id === passwordForm.selectedUserId);
+    if (!selectedUser) {
+      setMessage({ type: 'error', text: t('user_not_found') || 'User not found' });
+      return;
+    }
+
+    const success = await adminChangePassword(selectedUser.username, passwordForm.newPassword);
 
     if (success) {
       const selectedUser = users.find(u => u.id === passwordForm.selectedUserId);

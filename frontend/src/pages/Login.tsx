@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 interface LoginProps {
-  onLogin: (credentials: { username: string; password: string }) => boolean;
+  onLogin: (credentials: { username: string; password: string }) => Promise<boolean>;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -19,7 +19,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     setIsLoading(true);
     
-    const success = onLogin({ username, password });
+    const success = await onLogin({ username, password });
     if (!success) {
       alert(t('invalid_credentials') || 'Invalid username or password');
     }

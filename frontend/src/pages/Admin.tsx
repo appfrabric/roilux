@@ -22,7 +22,7 @@ interface ContactRequest {
   phone?: string;
   subject: string;
   message: string;
-  timestamp: string;
+  created_at: string;
   type: 'contact';
 }
 
@@ -32,10 +32,10 @@ interface TourRequest {
   email: string;
   company?: string;
   phone?: string;
-  preferredDate: string;
-  preferredTime: string;
-  specialRequests?: string;
-  timestamp: string;
+  preferred_date: string;
+  preferred_time: string;
+  message?: string;
+  created_at: string;
   type: 'tour';
 }
 
@@ -51,57 +51,64 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
   const [selectedTab, setSelectedTab] = useState<'contact' | 'tour'>('contact');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [activeSection, setActiveSection] = useState<'requests' | 'users'>('requests');
+  const [loading, setLoading] = useState(true);
 
-  // Load mock data (in production, this would come from an API)
+  // Load data from backend APIs
   useEffect(() => {
-    const mockRequests: Request[] = [
-      {
-        id: '1',
-        name: 'arthur test',
-        email: 'arthur.test@example.com',
-        company: 'Test Wood Imports',
-        phone: '+1-555-0123',
-        subject: 'Product Inquiry',
-        message: 'I am interested in your plywood products. Could you please provide pricing for marine grade plywood?',
-        timestamp: new Date().toISOString(),
-        type: 'contact'
-      },
-      {
-        id: '2',
-        name: 'chef bandja test',
-        email: 'chef.bandja.test@example.com',
-        company: 'Test Furniture Co',
-        phone: '+1-555-0456',
-        subject: 'Quote Request',
-        message: 'We need 500 pieces of melamine plywood for furniture production. Please send quote.',
-        timestamp: new Date(Date.now() - 86400000).toISOString(),
-        type: 'contact'
-      },
-      {
-        id: '3',
-        name: 'arthur test',
-        email: 'arthur.test@example.com',
-        company: 'Test Construction',
-        phone: '+1-555-0123',
-        preferredDate: '2025-08-15',
-        preferredTime: '10:00 AM',
-        specialRequests: 'Would like to see the quality control processes and discuss bulk pricing.',
-        timestamp: new Date(Date.now() - 172800000).toISOString(),
-        type: 'tour'
-      },
-      {
-        id: '4',
-        name: 'chef bandja test',
-        email: 'chef.bandja.test@example.com',
-        preferredDate: '2025-08-20',
-        preferredTime: '2:00 PM',
-        specialRequests: 'Interested in veneer selection process for high-end furniture.',
-        timestamp: new Date(Date.now() - 259200000).toISOString(),
-        type: 'tour'
-      }
-    ];
-    setRequests(mockRequests);
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Load contact messages
+      const contactResponse = await fetch('/api/contact-messages');
+      const tourResponse = await fetch('/api/virtual-tours');
+      
+      const allRequests: Request[] = [];
+      
+      if (contactResponse.ok) {
+        const contactData = await contactResponse.json();
+        const contactRequests: ContactRequest[] = contactData.messages.map((msg: any) => ({
+          id: msg.id.toString(),
+          name: msg.name,
+          email: msg.email,
+          company: msg.company,
+          phone: msg.phone,
+          subject: msg.subject,
+          message: msg.message,
+          created_at: msg.created_at,
+          type: 'contact'
+        }));
+        allRequests.push(...contactRequests);
+      }
+      
+      if (tourResponse.ok) {
+        const tourData = await tourResponse.json();
+        const tourRequests: TourRequest[] = tourData.tours.map((tour: any) => ({
+          id: tour.id.toString(),
+          name: tour.name,
+          email: tour.email,
+          company: tour.company,
+          phone: tour.phone,
+          preferred_date: tour.preferred_date,
+          preferred_time: tour.preferred_time,
+          message: tour.message,
+          created_at: tour.created_at,
+          type: 'tour'
+        }));
+        allRequests.push(...tourRequests);
+      }
+      
+      // Sort by creation date (newest first)
+      allRequests.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setRequests(allRequests);
+    } catch (error) {
+      console.error('Failed to load requests:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredRequests = requests.filter(req => req.type === selectedTab);
 
@@ -116,6 +123,8 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
   };
 
   const deleteRequest = (id: string) => {
+    // In production, this would call a delete API endpoint
+    console.warn('Delete API not implemented yet');
     setRequests(prev => prev.filter(req => req.id !== id));
     if (selectedRequest?.id === id) {
       setSelectedRequest(null);
@@ -217,7 +226,11 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
 
               {/* Request List */}
               <div className="max-h-96 overflow-y-auto">
-                {filteredRequests.length === 0 ? (
+                {loading ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <p>Loading requests...</p>
+                  </div>
+                ) : filteredRequests.length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
                     <p>{t('no_requests') || 'No requests found'}</p>
                   </div>
@@ -250,12 +263,12 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                             {selectedTab === 'tour' && (
                               <p className="text-sm text-sage-green mt-2 font-medium">
                                 <CalendarIcon className="h-4 w-4 inline mr-1" />
-                                {(request as TourRequest).preferredDate} at {(request as TourRequest).preferredTime}
+                                {(request as TourRequest).preferred_date} at {(request as TourRequest).preferred_time}
                               </p>
                             )}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {formatDate(request.timestamp)}
+                            {formatDate(request.created_at)}
                           </div>
                         </div>
                       </motion.div>
@@ -303,7 +316,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                         )}
                         <p className="flex items-center text-gray-700">
                           <ClockIcon className="h-4 w-4 mr-2" />
-                          {formatDate(selectedRequest.timestamp)}
+                          {formatDate(selectedRequest.created_at)}
                         </p>
                       </div>
                     </div>
@@ -323,16 +336,16 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                         <div className="space-y-3">
                           <p className="flex items-center text-gray-700">
                             <CalendarIcon className="h-4 w-4 mr-2" />
-                            {(selectedRequest as TourRequest).preferredDate}
+                            {(selectedRequest as TourRequest).preferred_date}
                           </p>
                           <p className="flex items-center text-gray-700">
                             <ClockIcon className="h-4 w-4 mr-2" />
-                            {(selectedRequest as TourRequest).preferredTime}
+                            {(selectedRequest as TourRequest).preferred_time}
                           </p>
-                          {(selectedRequest as TourRequest).specialRequests && (
+                          {(selectedRequest as TourRequest).message && (
                             <div className="bg-gray-50 rounded-lg p-4">
                               <p className="font-medium text-sage-green mb-2">{t('admin_special_requests') || 'Special Requests'}</p>
-                              <p className="text-gray-700">{(selectedRequest as TourRequest).specialRequests}</p>
+                              <p className="text-gray-700">{(selectedRequest as TourRequest).message}</p>
                             </div>
                           )}
                         </div>
