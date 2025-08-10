@@ -27,13 +27,13 @@ const ProductCategory: React.FC = () => {
   const getCategoryTitle = () => {
     switch (category) {
       case 'plywood':
-        return t('plywood');
+        return 'Plywood';
       case 'melamine-plywood':
-        return t('melamine_plywood');
+        return 'Melamine Plywood';
       case 'veneer':
-        return t('veneer');
+        return 'Wood Veneer';
       case 'logs':
-        return t('logs');
+        return 'Raw Wood Logs';
       default:
         return category;
     }
@@ -42,13 +42,13 @@ const ProductCategory: React.FC = () => {
   const getCategoryDescription = () => {
     switch (category) {
       case 'plywood':
-        return t('plywood_desc');
+        return 'High-quality plywood for construction, marine applications, and furniture manufacturing';
       case 'melamine-plywood':
-        return t('melamine_plywood_desc');
+        return 'Premium melamine-faced plywood perfect for modern furniture and interior design';
       case 'veneer':
-        return t('veneer_desc');
+        return 'Beautiful wood veneer sheets in various species and cuts for fine woodworking';
       case 'logs':
-        return t('logs_desc');
+        return 'Sustainably sourced raw hardwood logs from Cameroon forests';
       default:
         return '';
     }
@@ -130,7 +130,7 @@ const ProductCategory: React.FC = () => {
       {/* Gallery Grid */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-forest-green">
-          {t('product_gallery') || 'Product Gallery'}
+          Product Gallery
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {productImages.galleryImages.map((image, index) => (
@@ -167,17 +167,17 @@ const ProductCategory: React.FC = () => {
       {/* Product Information */}
       <div className="bg-white rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-forest-green mb-4">
-          {t('product_details') || 'Product Details'}
+          Product Details
         </h3>
         <div className="grid lg:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-semibold text-lg mb-2">{t('specifications') || 'Specifications'}</h4>
+            <h4 className="font-semibold text-lg mb-2">Specifications</h4>
             {category === 'plywood' && (
               <ul className="space-y-2 text-gray-700">
-                <li>• {t('thickness') || 'Thickness'}: 1mm - 30mm</li>
-                <li>• {t('wood_types') || 'Wood Types'}: Okoume, Acajou, Ayous, Sapele</li>
-                <li>• {t('grades') || 'Grades'}: Premium, Marine, Structural</li>
-                <li>• {t('sizes') || 'Sizes'}: Standard and custom</li>
+                <li>• Thickness: 1mm - 30mm</li>
+                <li>• Wood Types: Okoume, Acajou, Ayous, Sapele</li>
+                <li>• Grades: Premium, Marine, Structural</li>
+                <li>• Sizes: Standard and custom</li>
               </ul>
             )}
             {category === 'melamine-plywood' && (
@@ -206,13 +206,13 @@ const ProductCategory: React.FC = () => {
             )}
           </div>
           <div>
-            <h4 className="font-semibold text-lg mb-2">{t('why_choose_this') || 'Why Choose This Product'}</h4>
+            <h4 className="font-semibold text-lg mb-2">Why Choose This Product</h4>
             <ul className="space-y-2 text-gray-700">
-              <li>✓ {t('quality_guaranteed') || 'Quality guaranteed'}</li>
-              <li>✓ {t('sample_available') || 'Samples available'}</li>
-              <li>✓ {t('custom_orders') || 'Custom orders accepted'}</li>
-              <li>✓ {t('bulk_discounts') || 'Bulk discounts available'}</li>
-              <li>✓ {t('fast_shipping') || 'Fast international shipping'}</li>
+              <li>✓ Quality guaranteed</li>
+              <li>✓ Samples available</li>
+              <li>✓ Custom orders accepted</li>
+              <li>✓ Bulk discounts available</li>
+              <li>✓ Fast international shipping</li>
             </ul>
           </div>
         </div>

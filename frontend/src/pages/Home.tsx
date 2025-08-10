@@ -237,26 +237,31 @@ const Home: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           className="text-3xl font-bold text-forest-green mb-8"
         >
-          {t('product_categories')}
+          Product Categories
         </motion.h2>
         <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
           {[
-            { name: t('plywood'), emoji: '🪵' },
-            { name: t('melamine_plywood'), emoji: '🎨' },
-            { name: t('veneer'), emoji: '🌳' },
-            { name: t('logs'), emoji: '🪓' },
+            { name: 'Plywood', emoji: '🪵', path: '/products/plywood' },
+            { name: 'Melamine Plywood', emoji: '🎨', path: '/products/melamine-plywood' },
+            { name: 'Wood Veneer', emoji: '🌳', path: '/products/veneer' },
+            { name: 'Raw Wood Logs', emoji: '🪓', path: '/products/logs' },
           ].map((category, index) => (
-            <motion.div
+            <Link
               key={category.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-              className="bg-gradient-to-br from-wood-light to-wood-medium rounded-lg p-6 text-center cursor-pointer hover:shadow-lg transition-all duration-300"
+              to={category.path}
+              className="block"
             >
-              <div className="text-4xl mb-3">{category.emoji}</div>
-              <h3 className="text-white font-semibold">{category.name}</h3>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+                className="bg-gradient-to-br from-wood-light to-wood-medium rounded-lg p-6 text-center cursor-pointer hover:shadow-lg transition-all duration-300"
+              >
+                <div className="text-4xl mb-3">{category.emoji}</div>
+                <h3 className="text-white font-semibold">{category.name}</h3>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

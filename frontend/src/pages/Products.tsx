@@ -9,32 +9,32 @@ const Products: React.FC = () => {
   const productCategories = [
     {
       id: 'plywood',
-      title: t('plywood'),
-      description: t('plywood_desc'),
+      title: 'Plywood',
+      description: 'High-quality plywood for construction, marine applications, and furniture manufacturing',
       woods: ['Okoume', 'Acajou (Mahogany)', 'Ayous', 'Sapele'],
       image: imageConfig.products.plywood.mainImage,
       path: '/products/plywood',
     },
     {
       id: 'melamine-plywood',
-      title: t('melamine_plywood'),
-      description: t('melamine_plywood_desc'),
+      title: 'Melamine Plywood',
+      description: 'Premium melamine-faced plywood perfect for modern furniture and interior design',
       woods: [],
       image: imageConfig.products['melamine-plywood'].mainImage,
       path: '/products/melamine-plywood',
     },
     {
       id: 'veneer',
-      title: t('veneer'),
-      description: t('veneer_desc'),
+      title: 'Wood Veneer',
+      description: 'Beautiful wood veneer sheets in various species and cuts for fine woodworking',
       woods: ['Okoume', 'Acajou', 'Ayous', 'Sapele', 'And more'],
       image: imageConfig.products.veneer.mainImage,
       path: '/products/veneer',
     },
     {
       id: 'logs',
-      title: t('logs'),
-      description: t('logs_desc'),
+      title: 'Raw Wood Logs',
+      description: 'Sustainably sourced raw hardwood logs from Cameroon forests',
       woods: [],
       image: imageConfig.products.logs.mainImage,
       path: '/products/logs',
@@ -115,7 +115,7 @@ const Products: React.FC = () => {
               
               {category.woods.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">{t('available_woods')}</p>
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Available Woods</p>
                   <div className="flex flex-wrap gap-2">
                     {category.woods.map((wood) => (
                       <span
@@ -133,7 +133,7 @@ const Products: React.FC = () => {
                 to={category.path}
                 className="inline-flex items-center px-4 py-2 bg-dark-green text-white rounded-lg hover:bg-forest-green transition-colors duration-300"
               >
-{t('view_gallery')}
+View Gallery
                 <svg
                   className="w-4 h-4 ml-2"
                   fill="none"

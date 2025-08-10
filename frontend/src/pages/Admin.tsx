@@ -286,13 +286,13 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                 <div>
                   <div className="bg-gradient-to-r from-wood-light to-sage-green p-6">
                     <h3 className="text-xl font-bold text-gray-800">
-                      {selectedRequest.type === 'contact' ? (t('contact_details') || 'Contact Details') : (t('tour_details') || 'Tour Details')}
+                      {selectedRequest.type === 'contact' ? 'Contact Details' : 'Tour Details'}
                     </h3>
                   </div>
                   <div className="p-6 space-y-6">
                     {/* Basic Info */}
                     <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">{t('basic_information') || 'Basic Information'}</h4>
+                      <h4 className="font-semibold text-gray-900 mb-3">Basic Information</h4>
                       <div className="space-y-2">
                         <p className="flex items-center text-gray-700">
                           <span className="font-medium w-20">{t('name') || 'Name'}:</span>
@@ -324,7 +324,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                     {/* Request-specific details */}
                     {selectedRequest.type === 'contact' ? (
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">{t('message_details') || 'Message Details'}</h4>
+                        <h4 className="font-semibold text-gray-900 mb-3">Message Details</h4>
                         <div className="bg-gray-50 rounded-lg p-4">
                           <p className="font-medium text-sage-green mb-2">{(selectedRequest as ContactRequest).subject}</p>
                           <p className="text-gray-700 whitespace-pre-wrap">{(selectedRequest as ContactRequest).message}</p>
@@ -332,7 +332,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                       </div>
                     ) : (
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">{t('tour_details') || 'Tour Details'}</h4>
+                        <h4 className="font-semibold text-gray-900 mb-3">Tour Details</h4>
                         <div className="space-y-3">
                           <p className="flex items-center text-gray-700">
                             <CalendarIcon className="h-4 w-4 mr-2" />
@@ -344,7 +344,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                           </p>
                           {(selectedRequest as TourRequest).message && (
                             <div className="bg-gray-50 rounded-lg p-4">
-                              <p className="font-medium text-sage-green mb-2">{t('admin_special_requests') || 'Special Requests'}</p>
+                              <p className="font-medium text-sage-green mb-2">Special Requests</p>
                               <p className="text-gray-700">{(selectedRequest as TourRequest).message}</p>
                             </div>
                           )}
