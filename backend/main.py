@@ -323,6 +323,18 @@ def archive_virtual_tour(tour_id: int, db: Session = Depends(get_db)):
     
     return {"success": True, "message": "Tour request archived successfully"}
 
+@app.delete("/api/virtual-tours/{tour_id}")
+def delete_virtual_tour(tour_id: int, db: Session = Depends(get_db)):
+    """Delete a virtual tour request (admin only)"""
+    tour = db.query(VirtualTour).filter(VirtualTour.id == tour_id).first()
+    if not tour:
+        raise HTTPException(status_code=404, detail="Tour not found")
+    
+    db.delete(tour)
+    db.commit()
+    
+    return {"success": True, "message": "Tour request deleted successfully"}
+
 # Contact form
 @app.post("/api/contact")
 def submit_contact(message_request: ContactMessageRequest, db: Session = Depends(get_db)):
@@ -502,6 +514,18 @@ def archive_contact_message(message_id: int, db: Session = Depends(get_db)):
     db.commit()
     
     return {"success": True, "message": "Message archived successfully"}
+
+@app.delete("/api/contact-messages/{message_id}")
+def delete_contact_message(message_id: int, db: Session = Depends(get_db)):
+    """Delete a contact message (admin only)"""
+    message = db.query(ContactMessage).filter(ContactMessage.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    db.delete(message)
+    db.commit()
+    
+    return {"success": True, "message": "Message deleted successfully"}
 
 # Image upload endpoint
 @app.post("/api/upload/image")

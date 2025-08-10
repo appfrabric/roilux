@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -7,14 +7,16 @@ import {
   CalendarIcon,
   ClockIcon,
   BuildingOfficeIcon,
-  ArrowRightOnRectangleIcon,
+  ArrowRightStartOnRectangleIcon,
   EyeIcon,
   ArchiveBoxIcon,
+  TrashIcon,
   UsersIcon,
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import UserManagement from './UserManagement';
+import { useAuth } from '../context/AuthContext';
 
 interface ContactRequest {
   id: string;
@@ -58,6 +60,7 @@ interface AdminProps {
 
 const Admin: React.FC<AdminProps> = ({ onLogout }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedTab, setSelectedTab] = useState<'contact' | 'tour'>('contact');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
@@ -68,12 +71,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
   const [currentContactPage, setCurrentContactPage] = useState(1);
   const [currentTourPage, setCurrentTourPage] = useState(1);
 
-  // Load data from backend APIs
-  useEffect(() => {
-    loadData();
-  }, [currentContactPage, currentTourPage]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       // Load contact messages with pagination
@@ -135,7 +133,12 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentContactPage, currentTourPage]);
+
+  // Load data from backend APIs
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const filteredRequests = requests.filter(req => req.type === selectedTab);
 
@@ -173,6 +176,42 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
       }
     } catch (error) {
       console.error('Error archiving request:', error);
+    }
+  };
+
+  const deleteRequest = async (id: string, type: 'contact' | 'tour') => {
+    if (!user || user.role !== 'admin') {
+      console.error('Only admin users can delete requests');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to permanently delete this request? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const endpoint = type === 'contact' 
+        ? `/api/contact-messages/${id}`
+        : `/api/virtual-tours/${id}`;
+      
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Reload data to reflect changes
+        await loadData();
+        if (selectedRequest?.id === id) {
+          setSelectedRequest(null);
+        }
+      } else {
+        console.error('Failed to delete request');
+      }
+    } catch (error) {
+      console.error('Error deleting request:', error);
     }
   };
 
@@ -227,7 +266,7 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                 onClick={onLogout}
                 className="flex items-center space-x-2 px-4 py-2 bg-white/20 backdrop-blur text-gray-800 rounded-lg hover:bg-white/30 transition-colors"
               >
-                <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                <ArrowRightStartOnRectangleIcon className="h-5 w-5" />
                 <span>{t('logout') || 'Logout'}</span>
               </button>
             </div>
@@ -446,6 +485,15 @@ const Admin: React.FC<AdminProps> = ({ onLogout }) => {
                         <ArchiveBoxIcon className="h-4 w-4 mr-2" />
                         {selectedRequest.status === 'archived' ? (t('archived') || 'Archived') : (t('archive') || 'Archive')}
                       </button>
+                      {user?.role === 'admin' && (
+                        <button
+                          onClick={() => deleteRequest(selectedRequest.id, selectedRequest.type)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
+                          title="Delete permanently (Admin only)"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
