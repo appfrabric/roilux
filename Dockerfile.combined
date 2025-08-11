@@ -1,0 +1,42 @@
+# Build React app
+FROM node:18-alpine as frontend-builder
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci --legacy-peer-deps
+COPY frontend/ ./
+RUN npm run build
+
+# Setup Python backend and serve everything
+FROM python:3.11-slim
+WORKDIR /app
+
+# Install Node.js for serving
+RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+
+# Copy backend
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY backend/ ./backend/
+WORKDIR /app/backend
+
+# Copy frontend build
+COPY --from=frontend-builder /app/build /app/frontend/build
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+echo "Starting backend server..."\n\
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 &\n\
+BACKEND_PID=$!\n\
+echo "Backend started with PID: $BACKEND_PID"\n\
+sleep 3\n\
+echo "Starting frontend server..."\n\
+cd /app/frontend\n\
+npx serve build -p 3000 -s --no-clipboard &\n\
+FRONTEND_PID=$!\n\
+echo "Frontend started with PID: $FRONTEND_PID"\n\
+wait $BACKEND_PID $FRONTEND_PID' > /app/start.sh && chmod +x /app/start.sh
+
+EXPOSE 3000 8000
+
+CMD ["/app/start.sh"]
