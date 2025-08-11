@@ -1,20 +1,41 @@
 name: tropical-wood
 services:
-- dockerfile_path: Dockerfile.app
+- environment_slug: python
   github:
     branch: main
     deploy_on_push: true
     repo: appfrabric/roilux
-  name: app
+  name: backend
+  build_command: pip install -r requirements.txt
+  run_command: uvicorn main:app --host 0.0.0.0 --port 8080
+  source_dir: backend
   http_port: 8080
   instance_count: 1
-  instance_size_slug: basic-xs
+  instance_size_slug: basic-xxs
   routes:
-  - path: /
+  - path: /api
   envs:
-  - key: NODE_ENV
+  - key: ENV
     value: production
   - key: PYTHONUNBUFFERED
     value: "1"
   - key: DATABASE_URL
     value: sqlite:///./data/tropical_wood.db
+
+- environment_slug: node-js
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: appfrabric/roilux
+  name: frontend
+  build_command: npm ci --legacy-peer-deps && npm run build
+  run_command: npx serve build -p 8080 --host 0.0.0.0 --no-clipboard
+  source_dir: frontend
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /
+  envs:
+  - key: NODE_ENV
+    value: production
