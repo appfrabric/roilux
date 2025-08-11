@@ -1,0 +1,26 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY frontend/package*.json ./frontend/
+
+# Install dependencies
+RUN npm install express
+WORKDIR /app/frontend
+RUN npm ci --legacy-peer-deps
+
+# Build frontend
+COPY frontend/ ./
+RUN npm run build
+
+# Go back to root
+WORKDIR /app
+
+# Copy server
+COPY server-api.js ./
+
+EXPOSE 8080
+
+CMD ["node", "server-api.js"]
