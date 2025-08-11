@@ -29,7 +29,11 @@ app.add_middleware(
 # Initialize database
 @app.on_event("startup")
 async def startup_event():
+    # Ensure data directory exists
+    os.makedirs("data", exist_ok=True)
+    print("Data directory ensured")
     create_tables()
+    print("Database tables created")
     await create_default_admin()
 
 # Create directories for storing uploads
@@ -650,12 +654,19 @@ def hash_password(password: str) -> str:
 # Initialize default admin users
 @app.on_event("startup")
 async def create_default_admin():
-    """Create default admin user if not exists"""
+    """Create default admin user if not exists or reset password"""
     db = next(get_db())
     
     # Check if admin user already exists
     existing_admin = db.query(AdminUser).filter(AdminUser.username == "admin").first()
-    if not existing_admin:
+    if existing_admin:
+        # Always reset to correct password on startup
+        existing_admin.password_hash = hash_password("roilux2024")
+        existing_admin.email = "roilux.woods@gmail.com"
+        existing_admin.role = "admin"
+        db.commit()
+        print(f"Admin user password reset. Hash: {existing_admin.password_hash}")
+    else:
         admin_user = AdminUser(
             username="admin",
             email="roilux.woods@gmail.com",
@@ -663,8 +674,12 @@ async def create_default_admin():
             role="admin"
         )
         db.add(admin_user)
-        
-        # Add a sample processor
+        db.commit()
+        print(f"Admin user created. Hash: {admin_user.password_hash}")
+    
+    # Add a sample processor if not exists
+    existing_processor = db.query(AdminUser).filter(AdminUser.username == "processor1").first()
+    if not existing_processor:
         processor_user = AdminUser(
             username="processor1",
             email="processor@roilux.com", 
@@ -672,16 +687,27 @@ async def create_default_admin():
             role="processor"
         )
         db.add(processor_user)
-        
         db.commit()
+        print("Processor user created")
 
 # Authentication endpoints
 @app.post("/api/auth/login")
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """Admin/processor login"""
+    print(f"Login attempt for username: {login_data.username}")
+    
     admin_user = db.query(AdminUser).filter(AdminUser.username == login_data.username).first()
     
-    if not admin_user or admin_user.password_hash != hash_password(login_data.password):
+    if not admin_user:
+        print(f"User not found: {login_data.username}")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    provided_hash = hash_password(login_data.password)
+    print(f"Provided password hash: {provided_hash}")
+    print(f"Stored password hash: {admin_user.password_hash}")
+    
+    if admin_user.password_hash != provided_hash:
+        print("Password mismatch!")
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
     # Update last login
