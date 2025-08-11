@@ -700,7 +700,11 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     
     if not admin_user:
         print(f"User not found: {login_data.username}")
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        # Debug info for temporary debugging
+        all_users = db.query(AdminUser).all()
+        user_list = [f"{u.username}({u.role})" for u in all_users]
+        error_detail = f"User '{login_data.username}' not found. Available users: {', '.join(user_list)}"
+        raise HTTPException(status_code=401, detail=error_detail)
     
     provided_hash = hash_password(login_data.password)
     print(f"Provided password hash: {provided_hash}")
@@ -708,7 +712,9 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     
     if admin_user.password_hash != provided_hash:
         print("Password mismatch!")
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        # Debug info for temporary debugging
+        error_detail = f"Password mismatch for '{login_data.username}'. Provided: '{login_data.password}' (hash: {provided_hash}), Expected hash: {admin_user.password_hash}"
+        raise HTTPException(status_code=401, detail=error_detail)
     
     # Update last login
     admin_user.last_login = datetime.now()
