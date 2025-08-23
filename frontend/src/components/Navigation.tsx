@@ -15,7 +15,7 @@ const Navigation: React.FC = () => {
   return (
     <nav className="bg-gradient-to-b from-wood-light via-wood-dark to-leaf-green shadow-lg sticky top-0 z-50 wood-texture">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-24 md:h-20 lg:h-20">
           <Link to="/" className="flex items-center space-x-3">
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -110,13 +110,13 @@ const Navigation: React.FC = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden text-forest-green p-3 hover:bg-light-green rounded-lg transition-colors duration-300 min-h-[48px] min-w-[48px] flex items-center justify-center"
+            className="lg:hidden text-forest-green p-4 md:p-3 hover:bg-light-green rounded-lg transition-colors duration-300 min-h-[56px] min-w-[56px] md:min-h-[48px] md:min-w-[48px] flex items-center justify-center"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
-              <XMarkIcon className="w-8 h-8" />
+              <XMarkIcon className="w-10 h-10 md:w-8 md:h-8" />
             ) : (
-              <Bars3Icon className="w-8 h-8" />
+              <Bars3Icon className="w-10 h-10 md:w-8 md:h-8" />
             )}
           </button>
         </div>
