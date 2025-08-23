@@ -110,12 +110,13 @@ const Navigation: React.FC = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden text-forest-green"
+            className="lg:hidden text-forest-green p-3 hover:bg-light-green rounded-lg transition-colors duration-300 min-h-[48px] min-w-[48px] flex items-center justify-center"
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
-              <XMarkIcon className="w-6 h-6" />
+              <XMarkIcon className="w-8 h-8" />
             ) : (
-              <Bars3Icon className="w-6 h-6" />
+              <Bars3Icon className="w-8 h-8" />
             )}
           </button>
         </div>
