@@ -180,7 +180,7 @@ const Contact: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <h3 className="font-bold text-lg">Tropical Wood</h3>
-                <p className="opacity-90">A division of Roilux</p>
+                <p className="opacity-90">A division of Roiluxe</p>
               </div>
               <div className="flex items-start">
                 <MapPinIcon className="w-5 h-5 mr-3 flex-shrink-0 mt-1" />
@@ -195,16 +195,22 @@ const Contact: React.FC = () => {
                   <p className="font-semibold">{t('phone')} & WhatsApp</p>
                   <div className="space-y-2">
                     <div>
-                      <a href="tel:+2376948823693" className="block text-lg font-semibold hover:text-sage-green transition-colors">
-                        +237-694-88-2369
+                      <a href="tel:+237681211111" className="block text-lg font-semibold hover:text-sage-green transition-colors">
+                        +237-681-211-111
                       </a>
                       <p className="text-xs opacity-75">📞 Call or 💬 WhatsApp</p>
                     </div>
                     <div>
-                      <a href="tel:+2376918416173" className="block text-lg font-semibold hover:text-sage-green transition-colors">
-                        +237-691-84-1617
+                      <a href="tel:+237681100100" className="block text-lg font-semibold hover:text-sage-green transition-colors">
+                        +237-681-100-100
                       </a>
                       <p className="text-xs opacity-75">📞 Call or 💬 WhatsApp</p>
+                    </div>
+                    <div>
+                      <a href="tel:+13127317306" className="block text-lg font-semibold hover:text-sage-green transition-colors">
+                        +1-312-731-7306
+                      </a>
+                      <p className="text-xs opacity-75">📞 Leave voice or SMS</p>
                     </div>
                   </div>
                 </div>
@@ -213,9 +219,14 @@ const Contact: React.FC = () => {
                 <EnvelopeIcon className="w-5 h-5 mr-3" />
                 <div>
                   <p className="font-semibold">{t('email')}</p>
-                  <a href="mailto:roilux.woods@gmail.com" className="hover:text-sage-green transition-colors">
-                    roilux.woods@gmail.com
-                  </a>
+                  <div className="space-y-1">
+                    <a href="mailto:sales@roiluxe.com" className="block hover:text-sage-green transition-colors">
+                      sales@roiluxe.com
+                    </a>
+                    <a href="mailto:infos@roiluxe.com" className="block hover:text-sage-green transition-colors">
+                      infos@roiluxe.com
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

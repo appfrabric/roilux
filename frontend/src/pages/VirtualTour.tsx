@@ -377,18 +377,18 @@ const VirtualTour: React.FC = () => {
           className="mt-8 bg-gradient-to-r from-wood-light to-wood-medium rounded-2xl p-6 text-gray-800"
         >
           <h3 className="text-xl font-bold mb-4">Prefer to Call?</h3>
-          <div className="grid xl:grid-cols-2 gap-4">
+          <div className="grid xl:grid-cols-3 gap-4">
             <div className="text-center">
-              <p className="font-semibold text-lg">📞 +237-694-88-2369</p>
+              <p className="font-semibold text-lg">📞 +237-681-211-111</p>
               <p className="text-sm opacity-75">Call or WhatsApp</p>
             </div>
             <div className="text-center">
-              <p className="font-semibold text-lg">📞 +237-691-84-1617</p>
+              <p className="font-semibold text-lg">📞 +237-681-100-100</p>
               <p className="text-sm opacity-75">Call or WhatsApp</p>
             </div>
             <div className="text-center">
-              <p className="font-semibold text-lg">📞 +237-681-21-1111</p>
-              <p className="text-sm opacity-75">Call or WhatsApp</p>
+              <p className="font-semibold text-lg">📞 +1-312-731-7306</p>
+              <p className="text-sm opacity-75">Leave voice or SMS</p>
             </div>
          </div>
         </motion.div>

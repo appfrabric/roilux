@@ -1,6 +1,6 @@
 # Tropical Wood - Containerized Web Application
 
-A modern, containerized 2-tier web application for Tropical Wood (a division of Roilux), featuring a React frontend and Python FastAPI backend.
+A modern, containerized 2-tier web application for Tropical Wood (a division of Roiluxe), featuring a React frontend and Python FastAPI backend.
 
 ## Features
 
@@ -190,4 +190,4 @@ For support, please contact the development team or create an issue in the repos
 
 ## License
 
-© 2024 Tropical Wood, a division of Roilux. All rights reserved.
+© 2024 Tropical Wood, a division of Roiluxe. All rights reserved.

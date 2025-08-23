@@ -16,7 +16,7 @@ let database = {
     {
       id: 1,
       username: 'admin',
-      email: 'roilux.woods@gmail.com',
+      email: 'sales@roiluxe.com',
       password_hash: crypto.createHash('sha256').update('roilux2024').digest('hex'),
       role: 'admin',
       createdAt: new Date().toISOString(),
@@ -25,7 +25,7 @@ let database = {
     {
       id: 2,
       username: 'processor1',
-      email: 'processor@roilux.com',
+      email: 'processor@roiluxe.com',
       password_hash: crypto.createHash('sha256').update('processor123').digest('hex'),
       role: 'processor',
       createdAt: new Date().toISOString(),

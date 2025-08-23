@@ -4,7 +4,7 @@ TRANSLATIONS = {
     "en": {
         # Company Information
         "company_name": "Tropical Wood",
-        "company_subtitle": "A division of Roilux",
+        "company_subtitle": "A division of Roiluxe",
         "company_description": "Your premier source for high-quality wood products from Cameroon",
         
         # Navigation
@@ -91,7 +91,7 @@ TRANSLATIONS = {
     "fr": {
         # Company Information
         "company_name": "Tropical Wood",
-        "company_subtitle": "Une division de Roilux",
+        "company_subtitle": "Une division de Roiluxe",
         "company_description": "Votre source principale pour des produits en bois de haute qualité du Cameroun",
         
         # Navigation

@@ -8,7 +8,7 @@ const resources = {
     translation: {
       // Company Information
       company_name: "Tropical Wood",
-      company_subtitle: "A division of Roilux",
+      company_subtitle: "A division of Roiluxe",
       company_description: "Your premier source for high-quality wood products from Cameroon",
       
       // Navigation
@@ -140,7 +140,7 @@ const resources = {
       // About Us Page
       about_us: "About Us",
       about_tropical_wood: "About Tropical Wood",
-      about_description_1: "Tropical Wood, a division of Roilux, is a leading supplier of premium wood products from Cameroon, specializing in plywood, melamine, veneers, and raw logs. With years of experience in the timber industry, we have established ourselves as a trusted partner for businesses worldwide.",
+      about_description_1: "Tropical Wood, a division of Roiluxe, is a leading supplier of premium wood products from Cameroon, specializing in plywood, melamine, veneers, and raw logs. With years of experience in the timber industry, we have established ourselves as a trusted partner for businesses worldwide.",
       about_description_2: "Our state-of-the-art facilities and skilled craftsmen ensure that every product meets the highest quality standards. We pride ourselves on our ability to deliver custom solutions tailored to our clients' specific needs.",
       about_description_3: "From sustainable sourcing to timely delivery, we manage every aspect of the supply chain to provide you with exceptional wood products that exceed expectations.",
       our_values: "Our Values",
@@ -212,7 +212,7 @@ const resources = {
     translation: {
       // Company Information
       company_name: "Tropical Wood",
-      company_subtitle: "Une division de Roilux",
+      company_subtitle: "Une division de Roiluxe",
       company_description: "Votre source principale pour des produits en bois de haute qualité du Cameroun",
       
       // Navigation
@@ -344,7 +344,7 @@ const resources = {
       // About Us Page
       about_us: "À Propos",
       about_tropical_wood: "À Propos de Tropical Wood",
-      about_description_1: "Tropical Wood, une division de Roilux, est un fournisseur leader de produits en bois premium du Cameroun, spécialisé dans le contreplaqué, mélaminé, placages et grumes brutes. Avec des années d'expérience dans l'industrie du bois, nous nous sommes établis comme un partenaire de confiance pour les entreprises du monde entier.",
+      about_description_1: "Tropical Wood, une division de Roiluxe, est un fournisseur leader de produits en bois premium du Cameroun, spécialisé dans le contreplaqué, mélaminé, placages et grumes brutes. Avec des années d'expérience dans l'industrie du bois, nous nous sommes établis comme un partenaire de confiance pour les entreprises du monde entier.",
       about_description_2: "Nos installations de pointe et nos artisans qualifiés garantissent que chaque produit répond aux plus hauts standards de qualité. Nous sommes fiers de notre capacité à livrer des solutions personnalisées adaptées aux besoins spécifiques de nos clients.",
       about_description_3: "De l'approvisionnement durable à la livraison ponctuelle, nous gérons chaque aspect de la chaîne d'approvisionnement pour vous fournir des produits en bois exceptionnels qui dépassent les attentes.",
       our_values: "Nos Valeurs",

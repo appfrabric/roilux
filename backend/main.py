@@ -610,7 +610,7 @@ def request_sample():
 def get_company_info():
     """Get company information"""
     return {
-        "name": "Tropical Wood, a division of Roilux",
+        "name": "Tropical Wood, a division of Roiluxe",
         "location": "Cameroon",
         "established": "2010",
         "capacity": "50+ containers per month",
@@ -620,8 +620,8 @@ def get_company_info():
             "PEFC Certified"
         ],
         "contact": {
-            "email": "roilux.woods@gmail.com",
-            "phone": "+237-681-21-1111",
+            "email": "sales@roiluxe.com",
+            "phone": "+237-681-211-111",
             "address": "Abonbang, Cameroon"
         }
     }
@@ -694,27 +694,16 @@ async def create_default_admin():
 @app.post("/api/auth/login")
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """Admin/processor login"""
-    print(f"Login attempt for username: {login_data.username}")
     
     admin_user = db.query(AdminUser).filter(AdminUser.username == login_data.username).first()
     
     if not admin_user:
-        print(f"User not found: {login_data.username}")
-        # Debug info for temporary debugging
-        all_users = db.query(AdminUser).all()
-        user_list = [f"{u.username}({u.role})" for u in all_users]
-        error_detail = f"User '{login_data.username}' not found. Available users: {', '.join(user_list)}"
-        raise HTTPException(status_code=401, detail=error_detail)
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     
     provided_hash = hash_password(login_data.password)
-    print(f"Provided password hash: {provided_hash}")
-    print(f"Stored password hash: {admin_user.password_hash}")
     
     if admin_user.password_hash != provided_hash:
-        print("Password mismatch!")
-        # Debug info for temporary debugging
-        error_detail = f"Password mismatch for '{login_data.username}'. Provided: '{login_data.password}' (hash: {provided_hash}), Expected hash: {admin_user.password_hash}"
-        raise HTTPException(status_code=401, detail=error_detail)
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # Update last login
     admin_user.last_login = datetime.now()

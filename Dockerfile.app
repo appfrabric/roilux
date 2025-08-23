@@ -20,11 +20,11 @@ RUN npm run build
 WORKDIR /app
 
 # Install server dependencies
-RUN npm install express http-proxy-middleware
+RUN npm install express
 
 # Create data directory
 RUN mkdir -p backend/data
 
 EXPOSE 8080
 
-CMD ["node", "server-combined.js"]
+CMD ["node", "server-simple.js"]

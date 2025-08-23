@@ -3,7 +3,7 @@
     {
       "id": 1,
       "username": "admin",
-      "email": "roilux.woods@gmail.com",
+      "email": "sales@roiluxe.com",
       "password_hash": "b55eb751b312f7c49d89291a5cfcc9f89083897f1ef450ad6dffe851f8dee78f",
       "role": "admin",
       "createdAt": "2025-08-11T00:39:09.564Z",
@@ -12,7 +12,7 @@
     {
       "id": 2,
       "username": "processor1",
-      "email": "processor@roilux.com",
+      "email": "processor@roiluxe.com",
       "password_hash": "c792b76187fcadd3d5e681f7458c3ee2abebde64cdad8b281ed509db82dc87ad",
       "role": "processor",
       "createdAt": "2025-08-11T00:39:09.564Z",

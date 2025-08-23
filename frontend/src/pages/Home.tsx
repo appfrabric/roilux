@@ -306,24 +306,35 @@ const Home: React.FC = () => {
             <h3 className="text-lg font-bold mb-2">{t('call_us')} / WhatsApp</h3>
             <div className="space-y-2">
               <div>
-                <a href="tel:+2376948823693" className="block text-lg font-semibold hover:text-forest-green transition-colors">
-                  +237-694-88-2369
+                <a href="tel:+237681211111" className="block text-lg font-semibold hover:text-forest-green transition-colors">
+                  +237-681-211-111
                 </a>
                 <p className="text-xs opacity-75">📞 Call or 💬 WhatsApp</p>
               </div>
               <div>
-                <a href="tel:+2376918416173" className="block text-lg font-semibold hover:text-forest-green transition-colors">
-                  +237-691-84-1617
+                <a href="tel:+237681100100" className="block text-lg font-semibold hover:text-forest-green transition-colors">
+                  +237-681-100-100
                 </a>
                 <p className="text-xs opacity-75">📞 Call or 💬 WhatsApp</p>
+              </div>
+              <div>
+                <a href="tel:+13127317306" className="block text-lg font-semibold hover:text-forest-green transition-colors">
+                  +1-312-731-7306
+                </a>
+                <p className="text-xs opacity-75">📞 Leave voice or SMS</p>
               </div>
             </div>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-2">{t('email_us')}</h3>
-            <a href="mailto:roilux.woods@gmail.com" className="hover:text-forest-green transition-colors">
-              roilux.woods@gmail.com
-            </a>
+            <div className="space-y-1">
+              <a href="mailto:sales@roiluxe.com" className="block hover:text-forest-green transition-colors">
+                sales@roiluxe.com
+              </a>
+              <a href="mailto:infos@roiluxe.com" className="block hover:text-forest-green transition-colors">
+                infos@roiluxe.com
+              </a>
+            </div>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-2">{t('visit_us')}</h3>
